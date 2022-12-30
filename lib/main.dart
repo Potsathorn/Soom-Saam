@@ -11,11 +11,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slot_machine/slot_machine.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:randint/sevices/admon_service.dart';
 import 'package:randint/utils/color.dart';
 
-void main() => runApp(DevicePreview(
-    enabled: !kReleaseMode, builder: (BuildContext context) => const MyApp()));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  runApp(DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (BuildContext context) => const MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -88,38 +95,6 @@ class _WheelState extends State<Wheel> {
   List<String> resultList = [];
   List<String> wordList = [
     'สุขกาย',
-    'สบายใจ',
-    'ไร้โรค',
-    'โชคดี',
-    'มีเงิน',
-    'มั่งคั่ง',
-    'ร่ำรวย',
-    'พ้นทุกข์',
-    'พ้นโศก',
-    'มีสุข',
-    'สุขใจ',
-    'แข็งแรง',
-    'มั่งมี',
-    'ศรีสุข',
-    'มีทรัพย์',
-    'เป็นสุข',
-    'รื่นรมย์',
-    'อยู่เย็น',
-    'สุขสม',
-    'สมบูรณ์',
-    'พูนสุข',
-    'เงินทอง',
-    'โชคลาภ',
-    'ก้าวหน้า',
-    'รุ่งเรื่อง',
-    'สำเร็จ',
-    'สรรเสริญ',
-    'สมบัติ',
-    'บริสุทธ์',
-    'ราบรื่น',
-    'ล้ำค่า',
-    'สูงส่ง',
-    'สมหวัง'
   ];
   String dateNow = "";
   String name = "";
@@ -130,6 +105,8 @@ class _WheelState extends State<Wheel> {
     const Color(0xFF3E132C),
     const Color(0xFF1E1E1E),
   ];
+
+  BannerAd? _banner;
 
   @override
   void initState() {
@@ -148,6 +125,7 @@ class _WheelState extends State<Wheel> {
         }
       });
     elevation = elevationW;
+    _createBannerAd();
     input();
   }
 
@@ -161,6 +139,15 @@ class _WheelState extends State<Wheel> {
 
     // TODO: implement dispose
     super.dispose();
+  }
+
+  void _createBannerAd() {
+    _banner = BannerAd(
+        size: AdSize.fullBanner,
+        adUnitId: AdMobService.bannerAdUnitID,
+        listener: AdMobService.listener,
+        request: const AdRequest())
+      ..load();
   }
 
   void _init() {
@@ -200,8 +187,7 @@ class _WheelState extends State<Wheel> {
     await Future.delayed(const Duration(milliseconds: 200), () {});
     final DateTime now = DateTime.now();
     final todayBuddhism = DateTime(now.year + 543, now.month, now.day);
-    // dateNow = DateFormat('dd/MM/yy').format(todayBuddhism);
-    dateNow = "30/12/65";
+    dateNow = DateFormat('dd/MM/yy').format(todayBuddhism);
     stampDate = true;
     setState(() {});
     await Future.delayed(const Duration(microseconds: 500), () {});
@@ -211,11 +197,9 @@ class _WheelState extends State<Wheel> {
       cutting = false; //ตัดเสร็จ
       setState(() {});
     });
-
     await Future.delayed(const Duration(seconds: 1), () {}).then((value) {
       cutted = true; //ปริ้นต์เสร็จถือว่าตัดแล้ว
       bool isHorizontal = _paperWidth >= _paperHeight;
-
       setState(() {});
       DialogApp(context).showAppDialog(
           childe:
@@ -441,30 +425,29 @@ class _WheelState extends State<Wheel> {
           //     colors: _nightMode,
           //   ),
           // ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(height: 30),
-              textField(),
-              const SizedBox(height: 10),
-              Center(child: slotMachine()),
-            ],
-          )),
-      bottomSheet: Container(
-        width: MediaQuery.of(context).size.width,
-        height: 70,
-        alignment: Alignment.center,
-        color: AppColor.colorPrimary,
-        child: Text(
-          "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: Colors.yellow,
-              fontFamily: 'Kanit-Regular',
-              fontSize: 20,
-              fontWeight: FontWeight.w500),
-        ),
-      ),
+          child: Center(child: slotMachine())),
+      bottomNavigationBar: _banner == null
+          ? const SizedBox()
+          : Container(
+              margin: const EdgeInsets.only(bottom: 52),
+              height: 52,
+              child: AdWidget(ad: _banner!),
+            ),
+      // bottomSheet: Container(
+      //   width: MediaQuery.of(context).size.width,
+      //   height: 70,
+      //   alignment: Alignment.center,
+      //   color: AppColor.colorPrimary,
+      //   child: Text(
+      //     "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
+      //     textAlign: TextAlign.center,
+      //     style: TextStyle(
+      //         color: Colors.yellow,
+      //         fontFamily: 'Kanit-Regular',
+      //         fontSize: 20,
+      //         fontWeight: FontWeight.w500),
+      //   ),
+      // ),
     );
   }
 
@@ -945,7 +928,7 @@ class _WheelState extends State<Wheel> {
           child: CustomFlat3dButton(
               enable: !init,
               onTap: (() {
-                if (!init && !isSpin) {
+                if (!init && !isSpin && !cutted) {
                   isPrint = !isPrint;
                   isPrint ? _printting() : _cutting();
                 }
