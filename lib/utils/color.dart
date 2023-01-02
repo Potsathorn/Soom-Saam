@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
 class AppColor {
@@ -108,6 +109,142 @@ class AppColor {
     ],
     tileMode: TileMode.mirror,
   );
+
+  static List<NameColor> day = [
+    NameColor(color: const Color(0xFFB20F09), name: 'อาทิตย์'),
+    NameColor(color: const Color(0xFFE49C02), name: 'จันทร์'),
+    NameColor(color: const Color(0xFFF798A9), name: 'อังคาร'),
+    NameColor(color: const Color(0xFF03492C), name: 'พุธ'),
+    NameColor(color: const Color(0xFFDD6003), name: 'พฤหัสบดี'),
+    NameColor(color: const Color(0xFF023D94), name: 'ศุกร์'),
+    NameColor(color: const Color(0xFF4F2460), name: 'เสาร์'),
+  ];
+
+  static List<NameColor> thaiTone = [
+    NameColor(color: const Color(0xFF1C3F67), name: 'คราม'),
+    NameColor(color: const Color(0xFF00626B), name: 'เขียวขาม'),
+    NameColor(color: const Color(0xFF007838), name: 'เขียวตอง'),
+    NameColor(color: const Color(0xFFC2B506), name: 'เขียวมะพูด'),
+    NameColor(color: const Color(0xFFF4BD00), name: 'รงทอง'),
+    NameColor(color: const Color(0xFFF6A400), name: 'จำปา'),
+    NameColor(color: const Color(0xFFF08525), name: 'เมฆสนทยา'),
+    NameColor(color: const Color(0xFFE94D10), name: 'เสน'),
+    NameColor(color: const Color(0xFFC3191C), name: 'แดงชาด'),
+    NameColor(color: const Color(0xFFA42140), name: 'ลิ้นจี่'),
+    NameColor(color: const Color(0xFF702874), name: 'เม็ดมะปราง'),
+    NameColor(color: const Color(0xFF6A4797), name: 'ดอกอัญชัน'),
+  ];
+
+  static List<NameColor> noppaKao = [
+    NameColor(color: const Color(0xFFCED7D0), name: 'เพชร'),
+    NameColor(color: const Color(0xFFB12C2D), name: 'ทับทิม'),
+    NameColor(color: const Color(0xFF017D41), name: 'มรกต'),
+    NameColor(color: const Color(0xFFF1B600), name: 'บุษราคัม'),
+    NameColor(color: const Color(0xFF9A1B38), name: 'โกเมน'),
+    NameColor(color: const Color(0xFF173966), name: 'นิล'),
+    NameColor(color: const Color(0xFFCAAC76), name: 'มุกดาหาร'),
+    NameColor(color: const Color(0xFFD28897), name: 'เพทาย'),
+    NameColor(color: const Color(0xFFD1C8A1), name: 'ไพฑูรย์'),
+  ];
+
+  static List<NameGradient> gradientApp = [
+    NameGradient(
+        gradient: [const Color(0xFFE9E4F0), const Color(0xFFD3CCE3)],
+        name: 'Sexy Blue'),
+    NameGradient(
+        gradient: [const Color(0xFF41295a), const Color(0xFF2F0743)],
+        name: 'Purple Love'),
+    NameGradient(
+        gradient: [const Color(0xFFDA22FF), const Color(0xFF9733EE)],
+        name: 'Piglet'),
+    NameGradient(gradient: [
+      const Color(0xFF0F2027),
+      const Color(0xFF203A43),
+      const Color(0xFF2C5364)
+    ], name: 'Mauve'),
+    NameGradient(
+        gradient: [const Color(0xFF000046), const Color(0xFF1CB5E0)],
+        name: '50 Shades of Grey'),
+    NameGradient(
+        gradient: [const Color(0xFF000428), const Color(0xFF004e92)],
+        name: 'Frost'),
+    NameGradient(
+        gradient: [const Color(0xFF00bf8f), const Color(0xFF001510)],
+        name: 'Endless River'),
+    NameGradient(
+        gradient: [const Color(0xFF000000), const Color(0xFF0f9b0f)],
+        name: 'Bloody Mary'),
+    NameGradient(
+        gradient: [const Color(0xFF11998e), const Color(0xFF38ef7d)],
+        name: 'Decent'),
+    NameGradient(gradient: [
+      const Color(0xFF00416A),
+      const Color(0xFF799F0C),
+      const Color(0xFFFFE000)
+    ], name: 'Aubergine'),
+    NameGradient(
+        gradient: [const Color(0xFFc21500), const Color(0xFFffc500)],
+        name: 'Scooter'),
+    NameGradient(
+        gradient: [const Color(0xFFe65c00), const Color(0xFFF9D423)],
+        name: 'Celestial'),
+    NameGradient(
+        gradient: [const Color(0xFFFF0099), const Color(0xFF493240)],
+        name: 'Royal'),
+    NameGradient(gradient: [
+      const Color(0xFF03001e),
+      const Color(0xFF7303c0),
+      const Color(0xFFec38bc),
+      const Color(0xFFfdeff9)
+    ], name: 'Peach'),
+    NameGradient(
+        gradient: [const Color(0xFFdd1818), const Color(0xFF333333)],
+        name: 'Heavy Rain'),
+    NameGradient(
+        gradient: [const Color(0xFF8E0E00), const Color(0xFF1F1C18)],
+        name: 'Premium Dark'),
+  ];
+
+  static const List<String> goodWord = [
+    'สุขกาย',
+    'สบายใจ',
+    'โชคดี',
+    'ร่ำรวย',
+    'แข็งแรง',
+    'มั่งมี',
+    'รื่นรมย์',
+    'มีสติ',
+    'สงบสุข',
+    'สมบูรณ์',
+    'พูนสุข',
+    'โชคลาภ',
+    'ก้าวหน้า',
+    'รุ่งเรื่อง',
+    'สำเร็จ',
+    'บริสุทธ์',
+    'ราบรื่น',
+    'ล้ำค่า',
+    'สูงส่ง',
+    'สมหวัง',
+  ];
+}
+
+class NameColor {
+  final String name;
+  final Color color;
+  NameColor({
+    required this.name,
+    required this.color,
+  });
+}
+
+class NameGradient {
+  final String name;
+  final List<Color> gradient;
+  NameGradient({
+    required this.name,
+    required this.gradient,
+  });
 }
 
 TextStyle textThemeBody1(BuildContext context) {

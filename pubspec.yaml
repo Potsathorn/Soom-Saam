@@ -44,6 +44,8 @@ dependencies:
   get: ^4.6.5
   auto_size_text: ^3.0.0
   audioplayers: ^1.1.1
+  shared_preferences: ^2.0.15
+  
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +100,9 @@ flutter:
     - family: Kanit-Regular
       fonts:
         - asset: assets/fonts/Kanit-Regular.ttf
+    - family: Calistoga-Regular
+      fonts:
+        - asset: assets/fonts/Calistoga-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro
