@@ -180,7 +180,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       ),
                       // tileColor: AppColor.colorPrimary[15]!,
                       title: Text(
-                        "ธีมพื้นหลัง",
+                        "พื้นหลัง",
                         style: header,
                       ),
                       childrenPadding:

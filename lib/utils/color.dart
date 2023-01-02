@@ -192,10 +192,10 @@ class AppColor {
         gradient: [const Color(0xFFFF0099), const Color(0xFF493240)],
         name: 'Royal'),
     NameGradient(gradient: [
-      const Color(0xFF03001e),
-      const Color(0xFF7303c0),
+      const Color(0xFFfdeff9),
       const Color(0xFFec38bc),
-      const Color(0xFFfdeff9)
+      const Color(0xFF7303c0),
+      const Color(0xFF03001e),
     ], name: 'Peach'),
     NameGradient(
         gradient: [const Color(0xFFdd1818), const Color(0xFF333333)],

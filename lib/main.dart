@@ -60,6 +60,7 @@ class _WheelState extends State<Wheel> {
   bool stampDate = false;
   bool cutting = false;
   bool cutted = true;
+  bool cutable = true;
   late int digit1;
   late int digit2;
   late int digit3;
@@ -217,13 +218,16 @@ class _WheelState extends State<Wheel> {
     init = true;
     stampDate = false;
     cutting = false;
+    cutable = true;
     cutted = true;
     resultList.clear();
     _paperHeight = 0;
+
     setState(() {});
   }
 
   Future<void> _cutting() async {
+    cutable = false;
     _paperHeight += 20;
     setState(() {});
     await Future.delayed(const Duration(milliseconds: 200), () {});
@@ -250,7 +254,7 @@ class _WheelState extends State<Wheel> {
         childe:
             //resultDialog
             DialogApp(context).saveCapture(
-                title: name,
+                //title: name,
                 color: _machineColor,
                 dialogWidth: 324,
                 dialogHeight: isHorizontal ? 342 : 426,
@@ -258,6 +262,7 @@ class _WheelState extends State<Wheel> {
                 paperHeight: isHorizontal ? 158 : 248,
                 child: paperResult(percent: 1)),
       );
+
       _init();
       setState(() {});
     });
@@ -265,6 +270,7 @@ class _WheelState extends State<Wheel> {
 
   Future<void> _printting() async {
     firstPrint = true;
+
     cutted = false; //ปริ้นต์อยู่ถือว่าไม่ตัด
     _paperHeight = 50;
     setState(() {});
@@ -1013,7 +1019,7 @@ class _WheelState extends State<Wheel> {
           child: CustomFlat3dButton(
               enable: !init,
               onTap: (() {
-                if (!init && !isSpin) {
+                if (!init && !isSpin && cutable) {
                   isPrint = !isPrint;
                   isPrint ? _printting() : _cutting();
                 }
