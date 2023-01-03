@@ -290,7 +290,7 @@ class _WheelState extends State<Wheel> {
                 paperWidth: isHorizontal ? 254 : 192,
                 paperHeight: isHorizontal ? 158 : 248,
                 child: paperResult(
-                    percent: 1, listData: resultList, height: _paperHeight)),
+                    percent: 1, height: _paperHeight, listData: resultList)),
       );
 
       setState(() {});
