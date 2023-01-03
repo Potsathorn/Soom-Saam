@@ -45,6 +45,7 @@ dependencies:
   auto_size_text: ^3.0.0
   audioplayers: ^1.1.1
   shared_preferences: ^2.0.15
+  google_mobile_ads: ^2.3.0
   
 
 dev_dependencies:

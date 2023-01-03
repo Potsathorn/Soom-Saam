@@ -11,13 +11,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slot_machine/slot_machine.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:randint/Services/admob_service.dart';
 import 'package:randint/Widget/drawer.dart';
 import 'package:randint/utils/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(DevicePreview(
-    enabled: !kReleaseMode, builder: (BuildContext context) => const MyApp()));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  runApp(DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (BuildContext context) => const MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -49,6 +56,7 @@ class Wheel extends StatefulWidget {
 }
 
 class _WheelState extends State<Wheel> {
+  BannerAd? _bannerAd;
   //declare variable
   List<RollItem> _actualRollItems = [];
   bool isSpin = false;
@@ -119,8 +127,9 @@ class _WheelState extends State<Wheel> {
 
   @override
   void initState() {
-    prepareData();
     super.initState();
+    prepareData();
+    _createBannerAd();
 
     // _prefs.then((SharedPreferences prefs) {
     //   _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
@@ -448,8 +457,18 @@ class _WheelState extends State<Wheel> {
     // log("${_scrollController3.selectedItem}");
   }
 
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+        size: AdSize.banner,
+        adUnitId: AdMobService.bannerAdUnitId!,
+        listener: AdMobService.listener,
+        request: const AdRequest())
+      ..load();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // _bannerAd == null ? log('null ads') : log('ads pass');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: _machineColor,
@@ -520,12 +539,30 @@ class _WheelState extends State<Wheel> {
             ),
           ),
           child: Center(
-              child: slotMachine(
-                  machineColor: _machineColor,
-                  borderColor: _borderColor,
-                  printButtonColor: _machineColor,
-                  randomButtonColor: _machineColor,
-                  soundButtonColor: _machineColor))),
+              child: Column(
+            children: [
+              _bannerAd == null
+                  ? const SizedBox()
+                  : Container(
+                      //width: MediaQuery.of(context).size.width,
+                      height: 60,
+                      // color: AppColor.colorPrimary,
+                      // padding: const EdgeInsets.symmetric(vertical: 10),
+
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+              Expanded(
+                child: Center(
+                  child: slotMachine(
+                      machineColor: _machineColor,
+                      borderColor: _borderColor,
+                      printButtonColor: _machineColor,
+                      randomButtonColor: _machineColor,
+                      soundButtonColor: _machineColor),
+                ),
+              ),
+            ],
+          ))),
       // bottomSheet: Container(
       //   width: MediaQuery.of(context).size.width,
       //   height: 70,
@@ -617,7 +654,7 @@ class _WheelState extends State<Wheel> {
 
     return SizedBox(
       width: 323,
-      height: 357,
+      height: 357 + 60,
       child: Stack(clipBehavior: Clip.none, children: [
         // Positioned(
         //     top: 7,
