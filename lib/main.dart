@@ -11,9 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slot_machine/slot_machine.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:randint/Widget/drawer.dart';
 import 'package:randint/utils/color.dart';
+import 'package:randint/utils/sound.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -64,6 +68,7 @@ class _WheelState extends State<Wheel> {
   bool cutting = false;
   bool cutted = true;
   bool cutable = true;
+
   late int digit1;
   late int digit2;
   late int digit3;
@@ -91,6 +96,10 @@ class _WheelState extends State<Wheel> {
   double elevationW = 5;
   double _paperWidth = 113;
   double _paperHeight = 0;
+
+  DateTime now = DateTime.now();
+
+  //sharedPreference
   MaterialColor color3 = AppColor.colorPrimary;
 
   List<String> resultList = [];
@@ -98,15 +107,10 @@ class _WheelState extends State<Wheel> {
   String name = "";
   String _nameColorList = "day";
   String _nameGradientList = "gradient";
-
   Color _machineColor = AppColor.colorPrimary[1]!;
   Color _borderColor = AppColor.colorGrey[3]!;
-
-  DateTime now = DateTime.now();
-
-  //sharedPreference
-
   String _goodWord = 'สบายใจ';
+  bool _soundOn = true;
 
   List<Color> _nightMode = [
     const Color(0xFF001A35),
@@ -153,6 +157,7 @@ class _WheelState extends State<Wheel> {
     _colorIdx = prefs.getInt('colorIdx') ?? 0;
     _nameGradientList = prefs.getString('nameGradientList') ?? 'gradient';
     _gradientIdx = prefs.getInt('gradientIdx') ?? 0;
+    _soundOn = prefs.getBool('soundOn') ?? true;
 
     if (_nameColorList == 'day') {
       _machineColor = AppColor.day[_colorIdx].color;
@@ -251,25 +256,49 @@ class _WheelState extends State<Wheel> {
       cutted = true; //ปริ้นต์เสร็จถือว่าตัดแล้ว
       bool isHorizontal = _paperWidth >= _paperHeight;
       setState(() {});
+      double h = _paperHeight;
+      log('$h');
+      List<String> r = resultList;
+
       DialogApp(context).showAppDialog(
         childe:
             //resultDialog
             DialogApp(context).saveCapture(
                 //title: name,
+                onTapCancel: () {
+                  Navigator.pop(context);
+                  _init();
+                },
+                onTapConfirm: () async {
+                  await _screenshotController
+                      .captureFromWidget(Material(
+                          child: paperResult(
+                              percent: 1,
+                              height: _paperHeight,
+                              listData: resultList)))
+                      .then((image) async => await saveImage(image));
+                  // if (image == null) return;
+
+                  //log(await saveImage(image));
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context);
+                  _init();
+                },
                 color: _machineColor,
                 dialogWidth: 324,
                 dialogHeight: isHorizontal ? 342 : 426,
                 paperWidth: isHorizontal ? 254 : 192,
                 paperHeight: isHorizontal ? 158 : 248,
-                child: paperResult(percent: 1)),
+                child: paperResult(
+                    percent: 1, listData: resultList, height: _paperHeight)),
       );
 
-      _init();
       setState(() {});
     });
   }
 
   Future<void> _printting() async {
+    SoundOn.print();
     firstPrint = true;
 
     cutted = false; //ปริ้นต์อยู่ถือว่าไม่ตัด
@@ -303,6 +332,7 @@ class _WheelState extends State<Wheel> {
   }
 
   Future<void> _start() async {
+    SoundOn.random();
     //counter = 0;
     Math.Random random = Math.Random();
     int randomResult1 = 30 + random.nextInt(55 - 30);
@@ -314,6 +344,7 @@ class _WheelState extends State<Wheel> {
         duration: Duration(milliseconds: randomResult1),
         curve: Curves.linear,
       );
+
       // _scrollController2.animateToItem(
       //   counter2,
       //   duration: Duration(milliseconds: 50),
@@ -381,7 +412,7 @@ class _WheelState extends State<Wheel> {
     ballArmLeft = 287;
 
     setState(() {});
-    await Future.delayed(const Duration(milliseconds: 1000), () {
+    await Future.delayed(const Duration(milliseconds: 2100), () {
       stop();
     });
   }
@@ -449,99 +480,104 @@ class _WheelState extends State<Wheel> {
     // log("${_scrollController3.selectedItem}");
   }
 
+  final _screenshotController = ScreenshotController();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: _machineColor,
-        // backgroundColor: const Color(0xFF3E132C),
-        title: ads(context),
-        //backgroundColor: AppColor.colorPrimary[9]!,
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.settings, size: 30),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-              //tooltip: "ปรับแต่งเครื่องสุ่มและพื้นหลังของคุณ",
+    return Screenshot(
+      controller: _screenshotController,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: _machineColor,
+          // backgroundColor: const Color(0xFF3E132C),
+          title: ads(context),
+          //backgroundColor: AppColor.colorPrimary[9]!,
+          actions: [
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.settings, size: 30),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+                //tooltip: "ปรับแต่งเครื่องสุ่มและพื้นหลังของคุณ",
+              ),
             ),
-          ),
-        ],
-      ),
-      endDrawer: SoomSaamDrawer(
-        goodWord: (idx, goodword) async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString("goodWord", goodword);
-          log('${prefs.getString('goodWord')}');
+          ],
+        ),
+        endDrawer: SoomSaamDrawer(
+          goodWord: (idx, goodword) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString("goodWord", goodword);
+            log('${prefs.getString('goodWord')}');
 
-          // final SharedPreferences prefs = await _prefs;
-          // await prefs.setString('goodword', goodword);
+            // final SharedPreferences prefs = await _prefs;
+            // await prefs.setString('goodword', goodword);
 
-          _goodWordIdx = idx;
-          _goodWord = goodword;
+            _goodWordIdx = idx;
+            _goodWord = goodword;
 
-          setState(() {});
-        },
-        gradient: (name, gradient, idx) async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString("nameGradientList", name);
-          await prefs.setInt("gradientIdx", idx);
-          log('${prefs.getString('nameGradientList')} ${prefs.getInt('gradientIdx')}');
-          _nightMode = gradient;
-          _nameGradientList = name;
-          _gradientIdx = idx;
-          setState(() {});
-        },
-        machineColor: (name, machineColor, idx) async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString("nameColorList", name);
-          await prefs.setInt("colorIdx", idx);
-          log('${prefs.getString('nameColorList')} ${prefs.getInt('colorIdx')}');
-          _machineColor = machineColor;
-          _nameColorList = name;
-          _colorIdx = idx;
+            setState(() {});
+          },
+          gradient: (name, gradient, idx) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString("nameGradientList", name);
+            await prefs.setInt("gradientIdx", idx);
+            log('${prefs.getString('nameGradientList')} ${prefs.getInt('gradientIdx')}');
+            _nightMode = gradient;
+            _nameGradientList = name;
+            _gradientIdx = idx;
+            setState(() {});
+          },
+          machineColor: (name, machineColor, idx) async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString("nameColorList", name);
+            await prefs.setInt("colorIdx", idx);
+            log('${prefs.getString('nameColorList')} ${prefs.getInt('colorIdx')}');
+            _machineColor = machineColor;
+            _nameColorList = name;
+            _colorIdx = idx;
 
-          setState(() {});
-        },
-        goodWordSelected: _goodWord,
-        gradientSelected: _nightMode,
-        machineColorSelected: _machineColor,
-        nameMachineColorSelected: _nameColorList,
-        indexColorList: _colorIdx,
-        indexGadientList: _gradientIdx,
-        nameGradientSelected: _nameGradientList,
-      ),
-      body: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: _nightMode,
+            setState(() {});
+          },
+          goodWordSelected: _goodWord,
+          gradientSelected: _nightMode,
+          machineColorSelected: _machineColor,
+          nameMachineColorSelected: _nameColorList,
+          indexColorList: _colorIdx,
+          indexGadientList: _gradientIdx,
+          nameGradientSelected: _nameGradientList,
+        ),
+        body: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _nightMode,
+              ),
             ),
-          ),
-          child: Center(
-              child: slotMachine(
-                  machineColor: _machineColor,
-                  borderColor: _borderColor,
-                  printButtonColor: _machineColor,
-                  randomButtonColor: _machineColor,
-                  soundButtonColor: _machineColor))),
-      // bottomSheet: Container(
-      //   width: MediaQuery.of(context).size.width,
-      //   height: 70,
-      //   alignment: Alignment.center,
-      //   color: AppColor.colorPrimary,
-      //   child: Text(
-      //     "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
-      //     textAlign: TextAlign.center,
-      //     style: TextStyle(
-      //         color: Colors.yellow,
-      //         fontFamily: 'Kanit-Regular',
-      //         fontSize: 20,
-      //         fontWeight: FontWeight.w500),
-      //   ),
-      // ),
+            child: Center(
+                child: slotMachine(
+                    machineColor: _machineColor,
+                    borderColor: _borderColor,
+                    printButtonColor: _machineColor,
+                    randomButtonColor: _machineColor,
+                    soundButtonColor: _machineColor))),
+        // bottomSheet: Container(
+        //   width: MediaQuery.of(context).size.width,
+        //   height: 70,
+        //   alignment: Alignment.center,
+        //   color: AppColor.colorPrimary,
+        //   child: Text(
+        //     "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
+        //     textAlign: TextAlign.center,
+        //     style: TextStyle(
+        //         color: Colors.yellow,
+        //         fontFamily: 'Kanit-Regular',
+        //         fontSize: 20,
+        //         fontWeight: FontWeight.w500),
+        //   ),
+        // ),
+      ),
     );
   }
 
@@ -1003,12 +1039,18 @@ class _WheelState extends State<Wheel> {
           top: 228,
           left: 204,
           child: CustomFlat3dButton(
+              onTap: (() async {
+                _soundOn = !_soundOn;
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setBool("soundOn", _soundOn);
+                setState(() {});
+              }),
               width: 32,
               height: 30,
               color: soundButtonColor,
               shadowColor: AppColor.colorBlack.withOpacity(0.5),
-              child: const Icon(
-                Icons.volume_off,
+              child: Icon(
+                _soundOn ? Icons.volume_up : Icons.volume_off,
                 color: AppColor.colorWhite,
                 size: 18,
               )),
@@ -1073,91 +1115,132 @@ class _WheelState extends State<Wheel> {
     );
   }
 
-  Widget paperResult({double width = 113, double percent = 1}) => Container(
-        // padding: const EdgeInsets.symmetric(vertical: 10),
-        width: width * percent,
-        height: _paperHeight * percent,
-        decoration: BoxDecoration(
-          // gradient: LinearGradient(
-          //   begin: Alignment.topCenter,
-          //   end: Alignment.bottomCenter,
-          //   colors: g3,
-          // ),
-          border: Border.all(width: 1 * percent, color: AppColor.paper[1]!),
-          //borderRadius: const BorderRadius.all(Radius.circular(0.0)),
-          color: AppColor.paper,
-        ),
-        alignment: Alignment.bottomCenter,
-
-        child: Column(children: [
-          // if (stampDate) //เวลา
-          Container(
-            padding: EdgeInsets.zero,
-            alignment: Alignment.center,
-            width: width * percent,
-            height: 20 * percent,
-            decoration: BoxDecoration(
-                border: Border(
-                    bottom: BorderSide(
-                        width: 1 + percent, color: AppColor.paper[2]!))),
-            child: Text(
-              dateNow,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  //letterSpacing: 5,
-                  height: 0.77,
-                  fontFamily: 'SOV_wayo',
-                  fontSize: 30 * percent,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.paper[3]!),
-            ),
-          ),
-          for (var data in resultList.reversed) //ข้อมูล
-            Container(
-              padding: EdgeInsets.zero,
-              alignment: Alignment.center,
-              width: width * percent,
-              height: 20 * percent,
-              decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          width: 1 * percent, color: AppColor.paper[2]!))),
-              child: Text(
-                data,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    //letterSpacing: 5,
-                    height: 0.77,
-                    fontFamily: 'SOV_wayo',
-                    fontSize: 30 * percent,
-                    fontWeight: FontWeight.bold,
-                    color: AppColor.paper[3]!),
-              ),
-            ),
-          // if (printBy)
-          Container(
-            //ปริ้นต์โดย
-            padding: EdgeInsets.zero,
-            alignment: Alignment.centerRight,
-            width: width,
-            // height: 20,
-            // decoration: BoxDecoration(
-            //     border: Border(
-            //         top:
-            //             BorderSide(width: 0, color: AppColor.paper[2]!))),
-            child: Text(
-              "$_goodWord  ",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  // height: 1.5,
-                  fontFamily: 'SOV_wayo',
-                  fontSize: 18 * percent,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.paper[3]!),
-            ),
-          )
-        ]),
+  Widget paper(double width, double height) => Container(
+        width: width,
+        height: height,
+        color: AppColor.colorPrimary,
       );
+
+  Widget paperResult(
+      {double width = 113,
+      double percent = 1,
+      double height = 70,
+      List<String> listData = const []}) {
+    return Container(
+      // padding: const EdgeInsets.symmetric(vertical: 10),
+      width: width * percent,
+      height: height * percent,
+      decoration: BoxDecoration(
+        // gradient: LinearGradient(
+        //   begin: Alignment.topCenter,
+        //   end: Alignment.bottomCenter,
+        //   colors: g3,
+        // ),
+        border: Border.all(width: 1 * percent, color: AppColor.paper[1]!),
+        //borderRadius: const BorderRadius.all(Radius.circular(0.0)),
+        color: AppColor.paper,
+      ),
+      alignment: Alignment.bottomCenter,
+
+      child: Column(children: [
+        // if (stampDate) //เวลา
+        Container(
+          padding: EdgeInsets.zero,
+          alignment: Alignment.center,
+          width: width * percent,
+          height: 20 * percent,
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      width: 1 + percent, color: AppColor.paper[2]!))),
+          child: Text(
+            dateNow,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                //letterSpacing: 5,
+                height: 0.77,
+                fontFamily: 'SOV_wayo',
+                fontSize: 30 * percent,
+                fontWeight: FontWeight.bold,
+                color: AppColor.paper[3]!),
+          ),
+        ),
+
+        Expanded(
+          child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: listData.length,
+              itemBuilder: (ctx, index) {
+                return Container(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.center,
+                  width: width * percent,
+                  height: 20,
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              width: 1 * percent, color: AppColor.paper[2]!))),
+                  child: Text(
+                    listData[index],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        //letterSpacing: 5,
+                        height: 0.77,
+                        fontFamily: 'SOV_wayo',
+                        fontSize: 30 * percent,
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.paper[3]!),
+                  ),
+                );
+              }),
+        ),
+        // for (var data in result.reversed) //ข้อมูล
+        //   Container(
+        //     padding: EdgeInsets.zero,
+        //     alignment: Alignment.center,
+        //     width: width * percent,
+        //     height: 20 * percent,
+        //     decoration: BoxDecoration(
+        //         border: Border(
+        //             bottom: BorderSide(
+        //                 width: 1 * percent, color: AppColor.paper[2]!))),
+        //     child: Text(
+        //       data,
+        //       textAlign: TextAlign.center,
+        //       style: TextStyle(
+        //           //letterSpacing: 5,
+        //           height: 0.77,
+        //           fontFamily: 'SOV_wayo',
+        //           fontSize: 30 * percent,
+        //           fontWeight: FontWeight.bold,
+        //           color: AppColor.paper[3]!),
+        //     ),
+        //   ),
+        // if (printBy)
+        Container(
+          //ปริ้นต์โดย
+          padding: EdgeInsets.zero,
+          alignment: Alignment.centerRight,
+          width: width,
+          // height: 20,
+          // decoration: BoxDecoration(
+          //     border: Border(
+          //         top:
+          //             BorderSide(width: 0, color: AppColor.paper[2]!))),
+          child: Text(
+            "$_goodWord  ",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                // height: 1.5,
+                fontFamily: 'SOV_wayo',
+                fontSize: 18 * percent,
+                fontWeight: FontWeight.bold,
+                color: AppColor.paper[3]!),
+          ),
+        )
+      ]),
+    );
+  }
 
   Widget paperAnimated({double width = 113}) => AnimatedContainer(
         // padding: const EdgeInsets.symmetric(vertical: 10),
@@ -1295,6 +1378,18 @@ class _WheelState extends State<Wheel> {
         }).toList(),
       ),
     );
+  }
+
+  Future<String> saveImage(Uint8List image) async {
+    await [Permission.storage].request();
+    final time = DateTime.now()
+        .toIso8601String()
+        .replaceAll('.', '_')
+        .replaceAll(':', '_');
+
+    final name = 'soomsaam_$time';
+    final result = await ImageGallerySaver.saveImage(image, name: name);
+    return result['filePath'];
   }
 
   // Widget flat3dButton(
@@ -1524,7 +1619,9 @@ class DialogApp {
       double dialogHeight = 342,
       double paperWidth = 254,
       double paperHeight = 158,
-      Color? color}) {
+      Color? color,
+      void Function()? onTapCancel,
+      void Function()? onTapConfirm}) {
     return dialogBox(
       width: dialogWidth,
       height: dialogHeight,
@@ -1569,11 +1666,13 @@ class DialogApp {
                 button(
                     title: "ยกเลิก",
                     isOutline: true,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                    onTap: onTapCancel,
                     color: color),
-                button(title: "ยืนยัน", isOutline: false, color: color)
+                button(
+                    title: "ยืนยัน",
+                    isOutline: false,
+                    color: color,
+                    onTap: onTapConfirm)
               ],
             )
           ]),
