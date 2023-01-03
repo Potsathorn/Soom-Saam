@@ -11,14 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slot_machine/slot_machine.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:randint/sevices/admon_service.dart';
+import 'package:randint/Widget/drawer.dart';
 import 'package:randint/utils/color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
   runApp(DevicePreview(
       enabled: !kReleaseMode,
       builder: (BuildContext context) => const MyApp()));
@@ -65,13 +63,14 @@ class _WheelState extends State<Wheel> {
   bool stampDate = false;
   bool cutting = false;
   bool cutted = true;
+  bool cutable = true;
   late int digit1;
   late int digit2;
   late int digit3;
   late Timer timer;
   late Timer timer2;
   late Timer timer3;
-  late TextEditingController _textFieldController;
+  //late TextEditingController _textFieldController;
   late ScrollController _controller;
   final _scrollController1 = FixedExtentScrollController(initialItem: 0);
   final _scrollController2 = FixedExtentScrollController(initialItem: 0);
@@ -80,7 +79,9 @@ class _WheelState extends State<Wheel> {
   int counter = 0;
   int counter2 = 0;
   int counter3 = 0;
-  int goodWordIdx = 0;
+  int _goodWordIdx = 0;
+  int _colorIdx = 0;
+  int _gradientIdx = 0;
   double armTop = 74;
   double armLeft = 293;
   double ballArmTop = 55;
@@ -93,29 +94,45 @@ class _WheelState extends State<Wheel> {
   MaterialColor color3 = AppColor.colorPrimary;
 
   List<String> resultList = [];
-  List<String> wordList = [
-    'สุขกาย',
-  ];
   String dateNow = "";
   String name = "";
-  // DateTime now = DateTime.now();
+  String _nameColorList = "day";
+  String _nameGradientList = "gradient";
 
-  final List<Color> _nightMode = [
+  Color _machineColor = AppColor.colorPrimary[1]!;
+  Color _borderColor = AppColor.colorGrey[3]!;
+
+  DateTime now = DateTime.now();
+
+  //sharedPreference
+
+  String _goodWord = 'สบายใจ';
+
+  List<Color> _nightMode = [
     const Color(0xFF001A35),
     const Color(0xFF3E132C),
     const Color(0xFF1E1E1E),
   ];
 
-  BannerAd? _banner;
+  final List<Color> _defautMode = [
+    const Color(0xFFFFFFFF),
+    const Color(0xFFFFFFFF),
+  ];
 
   @override
   void initState() {
-    // TODO: implement initState
+    prepareData();
     super.initState();
+
+    // _prefs.then((SharedPreferences prefs) {
+    //   _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
+    //   //return prefs.getString('goodWord') ?? 'สบายใจ';
+    // });
+
     digit1 = 0;
     digit2 = 0;
     digit3 = 0;
-    _textFieldController = TextEditingController();
+    // _textFieldController = TextEditingController();
     _controller = ScrollController(initialScrollOffset: 0.0)
       ..addListener(() {
         if (_controller.offset >= 0) {
@@ -125,14 +142,37 @@ class _WheelState extends State<Wheel> {
         }
       });
     elevation = elevationW;
-    _createBannerAd();
+
     input();
+  }
+
+  Future<void> prepareData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
+    _nameColorList = prefs.getString('nameColorList') ?? 'day';
+    _colorIdx = prefs.getInt('colorIdx') ?? 0;
+    _nameGradientList = prefs.getString('nameGradientList') ?? 'gradient';
+    _gradientIdx = prefs.getInt('gradientIdx') ?? 0;
+
+    if (_nameColorList == 'day') {
+      _machineColor = AppColor.day[_colorIdx].color;
+    } else if (_nameColorList == 'noppaKao') {
+      _machineColor = AppColor.noppaKao[_colorIdx].color;
+    } else {
+      _machineColor = AppColor.thaiTone[_colorIdx].color;
+    }
+
+    if (_nameGradientList == 'gradient') {
+      _nightMode = AppColor.gradientApp[_gradientIdx].gradient;
+    }
+
+    log('${prefs.getString('goodWord')}');
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _textFieldController.dispose();
+    // _textFieldController.dispose();
     _scrollController1.dispose();
     _scrollController2.dispose();
     _scrollController3.dispose();
@@ -141,14 +181,20 @@ class _WheelState extends State<Wheel> {
     super.dispose();
   }
 
-  void _createBannerAd() {
-    _banner = BannerAd(
-        size: AdSize.fullBanner,
-        adUnitId: AdMobService.bannerAdUnitID,
-        listener: AdMobService.listener,
-        request: const AdRequest())
-      ..load();
-  }
+  // Future<void> _readSavedData() async {
+  //   final SharedPreferences prefs = await _prefs;
+  //   final String goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
+
+  //   setState(() {
+  //     _goodWord = prefs.setString('goodWord', goodWord).then((bool success) {
+  //       return goodWord;
+  //     });
+  //   });
+
+  //   // _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
+  //   // _nameColorList = prefs.getString('nameColorList') ?? 'day';
+  //   // _
+  // }
 
   void _init() {
     _scrollController1.animateToItem(
@@ -175,19 +221,23 @@ class _WheelState extends State<Wheel> {
     init = true;
     stampDate = false;
     cutting = false;
+    cutable = true;
     cutted = true;
     resultList.clear();
     _paperHeight = 0;
+
     setState(() {});
   }
 
   Future<void> _cutting() async {
+    cutable = false;
     _paperHeight += 20;
     setState(() {});
     await Future.delayed(const Duration(milliseconds: 200), () {});
     final DateTime now = DateTime.now();
     final todayBuddhism = DateTime(now.year + 543, now.month, now.day);
     dateNow = DateFormat('dd/MM/yy').format(todayBuddhism);
+    //dateNow = "30/12/65";
     stampDate = true;
     setState(() {});
     await Future.delayed(const Duration(microseconds: 500), () {});
@@ -202,15 +252,18 @@ class _WheelState extends State<Wheel> {
       bool isHorizontal = _paperWidth >= _paperHeight;
       setState(() {});
       DialogApp(context).showAppDialog(
-          childe:
-              //resultDialog
-              DialogApp(context).saveCapture(
-                  title: name,
-                  dialogWidth: 324,
-                  dialogHeight: isHorizontal ? 342 : 426,
-                  paperWidth: isHorizontal ? 254 : 192,
-                  paperHeight: isHorizontal ? 158 : 248,
-                  child: paperResult(percent: 1)));
+        childe:
+            //resultDialog
+            DialogApp(context).saveCapture(
+                //title: name,
+                color: _machineColor,
+                dialogWidth: 324,
+                dialogHeight: isHorizontal ? 342 : 426,
+                paperWidth: isHorizontal ? 254 : 192,
+                paperHeight: isHorizontal ? 158 : 248,
+                child: paperResult(percent: 1)),
+      );
+
       _init();
       setState(() {});
     });
@@ -218,6 +271,7 @@ class _WheelState extends State<Wheel> {
 
   Future<void> _printting() async {
     firstPrint = true;
+
     cutted = false; //ปริ้นต์อยู่ถือว่าไม่ตัด
     _paperHeight = 50;
     setState(() {});
@@ -238,7 +292,7 @@ class _WheelState extends State<Wheel> {
               child: Text(
                 "$i",
                 style: const TextStyle(
-                  fontFamily: 'Clarendon-Bold',
+                  fontFamily: 'Calistoga-Regular',
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                   color: Colors.red,
@@ -397,42 +451,82 @@ class _WheelState extends State<Wheel> {
 
   @override
   Widget build(BuildContext context) {
-    // List<RollItem> _actualRollItems = [
-    //   RollItem(
-    //       child: Container(color: Colors.amberAccent, child: Text("5d")),
-    //       index: 0),
-    //   RollItem(
-    //       child: Container(color: Colors.tealAccent, child: Text("52d")),
-    //       index: 1),
-    //   // RollItem(
-    //   //     child: Container(color: Colors.black45, child: Text("52d")),
-    //   //     index: 2),
-    // ];
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.colorPrimary,
+        backgroundColor: _machineColor,
         // backgroundColor: const Color(0xFF3E132C),
-        title: ads(),
-        // backgroundColor: AppColor.colorPrimary[9]!,
+        title: ads(context),
+        //backgroundColor: AppColor.colorPrimary[9]!,
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.settings, size: 30),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+              //tooltip: "ปรับแต่งเครื่องสุ่มและพื้นหลังของคุณ",
+            ),
+          ),
+        ],
+      ),
+      endDrawer: SoomSaamDrawer(
+        goodWord: (idx, goodword) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString("goodWord", goodword);
+          log('${prefs.getString('goodWord')}');
+
+          // final SharedPreferences prefs = await _prefs;
+          // await prefs.setString('goodword', goodword);
+
+          _goodWordIdx = idx;
+          _goodWord = goodword;
+
+          setState(() {});
+        },
+        gradient: (name, gradient, idx) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString("nameGradientList", name);
+          await prefs.setInt("gradientIdx", idx);
+          log('${prefs.getString('nameGradientList')} ${prefs.getInt('gradientIdx')}');
+          _nightMode = gradient;
+          _nameGradientList = name;
+          _gradientIdx = idx;
+          setState(() {});
+        },
+        machineColor: (name, machineColor, idx) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString("nameColorList", name);
+          await prefs.setInt("colorIdx", idx);
+          log('${prefs.getString('nameColorList')} ${prefs.getInt('colorIdx')}');
+          _machineColor = machineColor;
+          _nameColorList = name;
+          _colorIdx = idx;
+
+          setState(() {});
+        },
+        goodWordSelected: _goodWord,
+        gradientSelected: _nightMode,
+        machineColorSelected: _machineColor,
+        nameMachineColorSelected: _nameColorList,
+        indexColorList: _colorIdx,
+        indexGadientList: _gradientIdx,
+        nameGradientSelected: _nameGradientList,
       ),
       body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          // decoration: BoxDecoration(
-          //   gradient: LinearGradient(
-          //     begin: Alignment.topCenter,
-          //     end: Alignment.bottomCenter,
-          //     colors: _nightMode,
-          //   ),
-          // ),
-          child: Center(child: slotMachine())),
-      bottomNavigationBar: _banner == null
-          ? const SizedBox()
-          : Container(
-              margin: const EdgeInsets.only(bottom: 52),
-              height: 52,
-              child: AdWidget(ad: _banner!),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: _nightMode,
             ),
+          ),
+          child: Center(
+              child: slotMachine(
+                  machineColor: _machineColor,
+                  borderColor: _borderColor,
+                  printButtonColor: _machineColor,
+                  randomButtonColor: _machineColor,
+                  soundButtonColor: _machineColor))),
       // bottomSheet: Container(
       //   width: MediaQuery.of(context).size.width,
       //   height: 70,
@@ -451,63 +545,69 @@ class _WheelState extends State<Wheel> {
     );
   }
 
-  Widget textField() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: TextField(
-        style: TextStyle(
-          fontFamily: 'Kanit-Regular',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: AppColor.colorPrimary,
-        ),
-        cursorColor: AppColor.colorPrimary,
-        textAlign: TextAlign.center,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          filled: true,
-          fillColor: AppColor.colorWhite,
-          focusColor: AppColor.colorPrimary,
+  // Widget textField() {
+  //   return Container(
+  //     width: MediaQuery.of(context).size.width,
+  //     padding: const EdgeInsets.symmetric(horizontal: 40),
+  //     child: TextField(
+  //       style: TextStyle(
+  //         fontFamily: 'Kanit-Regular',
+  //         fontSize: 20,
+  //         fontWeight: FontWeight.bold,
+  //         color: AppColor.colorPrimary,
+  //       ),
+  //       cursorColor: AppColor.colorPrimary,
+  //       textAlign: TextAlign.center,
+  //       decoration: const InputDecoration(
+  //         contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+  //         filled: true,
+  //         fillColor: AppColor.colorWhite,
+  //         focusColor: AppColor.colorPrimary,
 
-          //hoverColor: AppColor.colorPrimary,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColor.colorPrimary, width: 3.0),
-            borderRadius: BorderRadius.all(Radius.circular(0)),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(0)),
-          ),
-          hintText: "โปรดระบุชื่อ",
-        ),
-        controller: _textFieldController,
-        onSubmitted: (String value) async {
-          name = value;
-          Math.Random random = Math.Random();
-          goodWordIdx = random.nextInt(wordList.length);
-          setState(() {});
-        },
-      ),
-    );
-  }
+  //         //hoverColor: AppColor.colorPrimary,
+  //         focusedBorder: OutlineInputBorder(
+  //           borderSide: BorderSide(color: AppColor.colorPrimary, width: 3.0),
+  //           borderRadius: BorderRadius.all(Radius.circular(0)),
+  //         ),
+  //         border: OutlineInputBorder(
+  //           borderRadius: BorderRadius.all(Radius.circular(0)),
+  //         ),
+  //         hintText: "โปรดระบุชื่อ",
+  //       ),
+  //       controller: _textFieldController,
+  //       onSubmitted: (String value) async {
+  //         name = value;
+  //         Math.Random random = Math.Random();
+  //         goodWordIdx = random.nextInt(wordList.length);
+  //         setState(() {});
+  //       },
+  //     ),
+  //   );
+  // }
 
-  Widget ads() => Container(
+  Widget ads(BuildContext context) => Container(
         width: MediaQuery.of(context).size.width,
-        height: 70,
-        alignment: Alignment.center,
-        color: AppColor.colorPrimary,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        // height: 70,
+        alignment: Alignment.centerLeft,
+        color: _machineColor,
         child: const Text(
-          "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
+          "สุ่มสาม",
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: Colors.yellow,
+              color: Colors.white,
               fontFamily: 'Kanit-Regular',
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w500),
         ),
       );
 
-  Widget slotMachine() {
+  Widget slotMachine(
+      {Color machineColor = const Color(0xFFBF0614),
+      Color borderColor = const Color(0xFFFBCC45),
+      Color printButtonColor = const Color(0xFF2295F0),
+      Color randomButtonColor = const Color(0xFFBF0614),
+      Color soundButtonColor = const Color(0xFF4AAE51)}) {
     List<Color> g1 = [
       const Color(0xFFD3841D),
       const Color(0xFFFACB3B),
@@ -516,23 +616,9 @@ class _WheelState extends State<Wheel> {
       const Color(0xFFF7A521),
     ];
 
-    List<Color> g2 = [
-      const Color(0xFF050505),
-      const Color(0xFF5C5C5C),
-      const Color(0xFF000000),
-    ];
-
-    List<Color> g3 = [
-      const Color(0xFFF8AA25),
-      const Color(0xFFF8C740),
-      const Color(0xFFFCCD38),
-      const Color(0xFFF8C73C),
-      const Color(0xFFF6A338),
-    ];
-
     return SizedBox(
       width: 323,
-      height: 349,
+      height: 357,
       child: Stack(clipBehavior: Clip.none, children: [
         // Positioned(
         //     top: 7,
@@ -578,9 +664,12 @@ class _WheelState extends State<Wheel> {
               //   end: Alignment.bottomCenter,
               //   colors: g1,
               // ),
-              border: Border.all(width: 3, color: AppColor.colorPrimary[1]!),
+              border: Border.all(
+                width: 3,
+                color: borderColor,
+              ),
               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              color: AppColor.colorPrimary,
+              color: machineColor,
             ),
             alignment: Alignment.center,
             child: Container(
@@ -592,7 +681,8 @@ class _WheelState extends State<Wheel> {
                 //   end: Alignment.bottomCenter,
                 //   colors: g2,
                 // ),
-                border: Border.all(width: 3, color: AppColor.colorPrimary[2]!),
+                border:
+                    Border.all(width: 3, color: machineColor.withOpacity(0.5)),
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                 color: AppColor.colorPrimary[3],
               ),
@@ -601,10 +691,9 @@ class _WheelState extends State<Wheel> {
                 width: 149,
                 height: 66,
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(width: 3, color: AppColor.colorPrimary[4]!),
+                  border: Border.all(width: 3, color: machineColor),
                   borderRadius: const BorderRadius.all(Radius.circular(0.0)),
-                  color: AppColor.colorPrimary[5],
+                  color: machineColor.withOpacity(0.5),
                 ),
                 alignment: Alignment.center,
                 child: Row(
@@ -664,7 +753,7 @@ class _WheelState extends State<Wheel> {
               decoration: BoxDecoration(
                 border: Border.all(width: 2, color: const Color(0xFFF9C643)),
                 borderRadius: const BorderRadius.all(Radius.circular(0.0)),
-                color: const Color(0xFFFCCD38),
+                color: const Color(0xFFFBCC45),
               ),
               alignment: Alignment.center,
             )),
@@ -778,9 +867,9 @@ class _WheelState extends State<Wheel> {
                 //   end: Alignment.bottomCenter,
                 //   colors: g3,
                 // ),
-                border: Border.all(width: 3, color: AppColor.colorPrimary[1]!),
+                border: Border.all(width: 3, color: borderColor),
                 borderRadius: const BorderRadius.all(Radius.circular(0.0)),
-                color: AppColor.colorPrimary[10],
+                color: machineColor,
               ),
               alignment: Alignment.center,
             )),
@@ -791,9 +880,9 @@ class _WheelState extends State<Wheel> {
               width: 186,
               height: 37,
               decoration: BoxDecoration(
-                border: Border.all(width: 3, color: AppColor.colorPrimary[1]!),
+                border: Border.all(width: 3, color: borderColor),
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                color: AppColor.colorPrimary,
+                color: machineColor,
               ),
               alignment: Alignment.center,
             )),
@@ -804,7 +893,7 @@ class _WheelState extends State<Wheel> {
               width: 159,
               height: 20,
               decoration: BoxDecoration(
-                border: Border.all(width: 3, color: AppColor.colorPrimary[1]!),
+                border: Border.all(width: 3, color: borderColor),
                 borderRadius: const BorderRadius.all(Radius.circular(50.0)),
                 color: AppColor.colorPrimary[12],
               ),
@@ -818,8 +907,9 @@ class _WheelState extends State<Wheel> {
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(width: 2, color: AppColor.colorPrimary[13]!),
-                color: AppColor.colorPrimary[14],
+                border:
+                    Border.all(width: 2, color: borderColor.withOpacity(0.1)),
+                color: borderColor,
               ),
               alignment: Alignment.center,
             )),
@@ -831,8 +921,9 @@ class _WheelState extends State<Wheel> {
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(width: 2, color: AppColor.colorPrimary[13]!),
-                color: AppColor.colorPrimary[14],
+                border:
+                    Border.all(width: 2, color: borderColor.withOpacity(0.1)),
+                color: borderColor,
               ),
               alignment: Alignment.center,
             )),
@@ -842,18 +933,18 @@ class _WheelState extends State<Wheel> {
           left: 106,
           child: MyArc(
             diameter: 114,
-            color: AppColor.colorPrimary[1]!,
+            color: borderColor,
           ),
         ),
         Positioned(
           top: 26,
           left: 111,
-          child: MyArc(diameter: 105, color: AppColor.colorPrimary[0]!),
+          child: MyArc(diameter: 105, color: machineColor),
         ),
         Positioned(
           top: 37,
           left: 122,
-          child: MyArc(diameter: 83, color: AppColor.colorPrimary[1]!),
+          child: MyArc(diameter: 83, color: borderColor),
         ),
         Positioned(
           //คำเปรย
@@ -864,7 +955,7 @@ class _WheelState extends State<Wheel> {
             height: 30,
             alignment: Alignment.center,
             child: AutoSizeText(
-              wordList[goodWordIdx],
+              _goodWord,
               maxLines: 1,
               minFontSize: 10,
               style: TextStyle(
@@ -872,7 +963,7 @@ class _WheelState extends State<Wheel> {
                 fontFamily: 'Kanit-Regular',
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColor.colorPrimary[0]!,
+                color: machineColor,
               ),
             ),
           ),
@@ -895,7 +986,8 @@ class _WheelState extends State<Wheel> {
               }),
               width: 57,
               height: 30,
-              color: AppColor.colorStatusTag[4]!,
+              color: randomButtonColor,
+              shadowColor: AppColor.colorBlack.withOpacity(0.5),
               //shadowColor: AppColor.colorStatusTag,
               child: const Text(
                 "สุ่ม",
@@ -913,11 +1005,11 @@ class _WheelState extends State<Wheel> {
           child: CustomFlat3dButton(
               width: 32,
               height: 30,
-              color: AppColor.buttonSlot[1]!,
-              shadowColor: AppColor.buttonSlot[2]!,
+              color: soundButtonColor,
+              shadowColor: AppColor.colorBlack.withOpacity(0.5),
               child: const Icon(
                 Icons.volume_off,
-                color: AppColor.colorPrimary,
+                color: AppColor.colorWhite,
                 size: 18,
               )),
         ),
@@ -928,7 +1020,7 @@ class _WheelState extends State<Wheel> {
           child: CustomFlat3dButton(
               enable: !init,
               onTap: (() {
-                if (!init && !isSpin && !cutted) {
+                if (!init && !isSpin && cutable) {
                   isPrint = !isPrint;
                   isPrint ? _printting() : _cutting();
                 }
@@ -936,12 +1028,13 @@ class _WheelState extends State<Wheel> {
               }),
               width: 32,
               height: 30,
-              color: init ? AppColor.colorText[1]! : AppColor.buttonSlot[1]!,
-              shadowColor:
-                  init ? AppColor.colorGrey[0]! : AppColor.buttonSlot[2]!,
+              color: init ? AppColor.colorText[1]! : printButtonColor,
+              shadowColor: init
+                  ? AppColor.colorGrey[0]!
+                  : AppColor.colorBlack.withOpacity(0.5),
               child: Icon(
                 !isPrint ? Icons.print : Icons.content_cut_sharp,
-                color: init ? AppColor.colorGrey[0]! : AppColor.colorPrimary,
+                color: init ? AppColor.colorGrey[0]! : AppColor.colorWhite,
                 size: 18,
               )),
         ),
@@ -1053,7 +1146,7 @@ class _WheelState extends State<Wheel> {
             //         top:
             //             BorderSide(width: 0, color: AppColor.paper[2]!))),
             child: Text(
-              "${wordList[goodWordIdx]}   ",
+              "$_goodWord  ",
               textAlign: TextAlign.center,
               style: TextStyle(
                   // height: 1.5,
@@ -1138,7 +1231,7 @@ class _WheelState extends State<Wheel> {
               //         top:
               //             BorderSide(width: 0, color: AppColor.paper[2]!))),
               child: AutoSizeText(
-                "${wordList[goodWordIdx]}   ",
+                "$_goodWord  ",
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 minFontSize: 10,
@@ -1430,7 +1523,8 @@ class DialogApp {
       double dialogWidth = 324,
       double dialogHeight = 342,
       double paperWidth = 254,
-      double paperHeight = 158}) {
+      double paperHeight = 158,
+      Color? color}) {
     return dialogBox(
       width: dialogWidth,
       height: dialogHeight,
@@ -1477,8 +1571,9 @@ class DialogApp {
                     isOutline: true,
                     onTap: () {
                       Navigator.of(context).pop();
-                    }),
-                button(title: "ยืนยัน", isOutline: false)
+                    },
+                    color: color),
+                button(title: "ยืนยัน", isOutline: false, color: color)
               ],
             )
           ]),
@@ -1490,7 +1585,8 @@ class DialogApp {
       double height = 38,
       bool isOutline = false,
       String title = "คลิกสิ!",
-      void Function()? onTap}) {
+      void Function()? onTap,
+      Color? color}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -1499,9 +1595,11 @@ class DialogApp {
         height: height,
         decoration: BoxDecoration(
             border: isOutline
-                ? Border.all(width: 1, color: AppColor.colorPrimary)
+                ? Border.all(width: 1, color: color ?? AppColor.colorPrimary)
                 : null,
-            color: isOutline ? AppColor.colorWhite : AppColor.colorPrimary,
+            color: isOutline
+                ? AppColor.colorWhite
+                : color ?? AppColor.colorPrimary,
             borderRadius: const BorderRadius.all(Radius.circular(5.0))),
         child: Text(
           title,
@@ -1511,7 +1609,9 @@ class DialogApp {
               fontFamily: 'Kanit-Regular',
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: !isOutline ? AppColor.colorWhite : AppColor.colorPrimary),
+              color: !isOutline
+                  ? AppColor.colorWhite
+                  : color ?? AppColor.colorPrimary),
         ),
       ),
     );
