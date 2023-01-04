@@ -14,6 +14,9 @@ import 'package:get/get_core/get_core.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:intl/intl.dart';
+import 'package:randint/Services/admob_service.dart';
 import 'package:randint/Widget/drawer.dart';
 import 'package:randint/utils/color.dart';
 import 'package:randint/utils/sound.dart';
@@ -21,6 +24,8 @@ import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   runApp(DevicePreview(
       enabled: !kReleaseMode,
       builder: (BuildContext context) => const MyApp()));
@@ -64,6 +69,7 @@ class Wheel extends StatefulWidget {
 }
 
 class _WheelState extends State<Wheel> {
+  BannerAd? _bannerAd;
   //declare variable
   List<RollItem> _actualRollItems = [];
   bool isSpin = false;
@@ -138,6 +144,7 @@ class _WheelState extends State<Wheel> {
   void initState() {
     super.initState();
     prepareData();
+    _createBannerAd();
 
     // _prefs.then((SharedPreferences prefs) {
     //   _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
@@ -607,45 +614,14 @@ class _WheelState extends State<Wheel> {
     );
   }
 
-  // Widget textField() {
-  //   return Container(
-  //     width: MediaQuery.of(context).size.width,
-  //     padding: const EdgeInsets.symmetric(horizontal: 40),
-  //     child: TextField(
-  //       style: TextStyle(
-  //         fontFamily: 'Kanit-Regular',
-  //         fontSize: 20,
-  //         fontWeight: FontWeight.bold,
-  //         color: AppColor.colorPrimary,
-  //       ),
-  //       cursorColor: AppColor.colorPrimary,
-  //       textAlign: TextAlign.center,
-  //       decoration: const InputDecoration(
-  //         contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-  //         filled: true,
-  //         fillColor: AppColor.colorWhite,
-  //         focusColor: AppColor.colorPrimary,
-
-  //         //hoverColor: AppColor.colorPrimary,
-  //         focusedBorder: OutlineInputBorder(
-  //           borderSide: BorderSide(color: AppColor.colorPrimary, width: 3.0),
-  //           borderRadius: BorderRadius.all(Radius.circular(0)),
-  //         ),
-  //         border: OutlineInputBorder(
-  //           borderRadius: BorderRadius.all(Radius.circular(0)),
-  //         ),
-  //         hintText: "โปรดระบุชื่อ",
-  //       ),
-  //       controller: _textFieldController,
-  //       onSubmitted: (String value) async {
-  //         name = value;
-  //         Math.Random random = Math.Random();
-  //         goodWordIdx = random.nextInt(wordList.length);
-  //         setState(() {});
-  //       },
-  //     ),
-  //   );
-  // }
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+        size: AdSize.banner,
+        adUnitId: AdMobService.bannerAdUnitId!,
+        listener: AdMobService.listener,
+        request: const AdRequest())
+      ..load();
+  }
 
   Widget ads(BuildContext context) => Container(
         width: MediaQuery.of(context).size.width,
@@ -694,7 +670,7 @@ class _WheelState extends State<Wheel> {
 
     return SizedBox(
       width: 323,
-      height: 357,
+      height: 357 + 60,
       child: Stack(clipBehavior: Clip.none, children: [
         for (int i = 0; i < 30; i++)
           jackpotIcon(
