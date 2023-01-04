@@ -35,6 +35,9 @@ class AppColor {
     6: Color(0xFF319039),
   });
 
+  static const MaterialColor backgroundApp =
+      MaterialColor(0xFF001837, <int, Color>{});
+
   static const MaterialColor paper = MaterialColor(0xFFF9FDFD, <int, Color>{
     0: Color(0xFFF9FDFD),
     1: Color(0xFFB8B8B8),
@@ -189,7 +192,7 @@ class AppColor {
         gradient: [const Color(0xFFe65c00), const Color(0xFFF9D423)],
         name: 'Celestial'),
     NameGradient(
-        gradient: [const Color(0xFFFF0099), const Color(0xFF493240)],
+        gradient: [const Color(0xFFFF0099), const Color(0xFF000000)],
         name: 'Royal'),
     NameGradient(gradient: [
       const Color(0xFFfdeff9),
@@ -198,10 +201,10 @@ class AppColor {
       const Color(0xFF03001e),
     ], name: 'Peach'),
     NameGradient(
-        gradient: [const Color(0xFFdd1818), const Color(0xFF333333)],
+        gradient: [const Color(0xFFdd1818), const Color(0xFF000000)],
         name: 'Heavy Rain'),
     NameGradient(
-        gradient: [const Color(0xFF8E0E00), const Color(0xFF1F1C18)],
+        gradient: [const Color(0xFF8E0E00), const Color(0xFF000000)],
         name: 'Premium Dark'),
   ];
 

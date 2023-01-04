@@ -49,10 +49,14 @@ dependencies:
   image_gallery_saver: ^1.7.1
   permission_handler: ^10.2.0
   
+  
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.11.0
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -60,6 +64,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icon/iconApp.png"
+  adaptive_icon_background: "#001D26"
+  adaptive_icon_foreground: "assets/icon/iconApp_adaptive_fore.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -77,6 +89,7 @@ flutter:
     - assets/
     - assets/images/
     - assets/audio/
+    - assets/icon/
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

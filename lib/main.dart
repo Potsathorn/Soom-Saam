@@ -36,8 +36,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-      title: 'ListWheelScrollView Example',
+      builder: (context, widget) {
+        widget = DevicePreview.appBuilder(
+          context,
+          widget,
+        );
+        return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: widget);
+      },
+      title: 'สุ่มสาม',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -68,6 +76,8 @@ class _WheelState extends State<Wheel> {
   bool cutting = false;
   bool cutted = true;
   bool cutable = true;
+  bool isRefresh = false;
+  bool blink = false;
 
   late int digit1;
   late int digit2;
@@ -75,8 +85,9 @@ class _WheelState extends State<Wheel> {
   late Timer timer;
   late Timer timer2;
   late Timer timer3;
+  late Timer timerJackpot;
   //late TextEditingController _textFieldController;
-  late ScrollController _controller;
+  // late ScrollController _controller;
   final _scrollController1 = FixedExtentScrollController(initialItem: 0);
   final _scrollController2 = FixedExtentScrollController(initialItem: 0);
   final _scrollController3 = FixedExtentScrollController(initialItem: 0);
@@ -125,8 +136,8 @@ class _WheelState extends State<Wheel> {
 
   @override
   void initState() {
-    prepareData();
     super.initState();
+    prepareData();
 
     // _prefs.then((SharedPreferences prefs) {
     //   _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
@@ -137,20 +148,23 @@ class _WheelState extends State<Wheel> {
     digit2 = 0;
     digit3 = 0;
     // _textFieldController = TextEditingController();
-    _controller = ScrollController(initialScrollOffset: 0.0)
-      ..addListener(() {
-        if (_controller.offset >= 0) {
-          _controller.animateTo(0,
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.linear);
-        }
-      });
+    // _controller = ScrollController(initialScrollOffset: 0.0)
+    //   ..addListener(() {
+    //     if (_controller.offset >= 0) {
+    //       _controller.animateTo(0,
+    //           duration: const Duration(milliseconds: 100),
+    //           curve: Curves.linear);
+    //     }
+    //   });
     elevation = elevationW;
 
     input();
   }
 
   Future<void> prepareData() async {
+    setState(() {
+      isRefresh = true;
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
     _nameColorList = prefs.getString('nameColorList') ?? 'day';
@@ -172,16 +186,18 @@ class _WheelState extends State<Wheel> {
     }
 
     log('${prefs.getString('goodWord')}');
+    setState(() {
+      isRefresh = false;
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
     // _textFieldController.dispose();
     _scrollController1.dispose();
     _scrollController2.dispose();
     _scrollController3.dispose();
-
     // TODO: implement dispose
     super.dispose();
   }
@@ -204,17 +220,17 @@ class _WheelState extends State<Wheel> {
   void _init() {
     _scrollController1.animateToItem(
       0,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 100),
       curve: Curves.linear,
     );
     _scrollController2.animateToItem(
       0,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 100),
       curve: Curves.linear,
     );
     _scrollController3.animateToItem(
       0,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 100),
       curve: Curves.linear,
     );
 
@@ -235,8 +251,10 @@ class _WheelState extends State<Wheel> {
   }
 
   Future<void> _cutting() async {
+    SoundOn.cut();
     cutable = false;
     _paperHeight += 20;
+
     setState(() {});
     await Future.delayed(const Duration(milliseconds: 200), () {});
     final DateTime now = DateTime.now();
@@ -331,6 +349,26 @@ class _WheelState extends State<Wheel> {
     }
   }
 
+  Future<void> _jackpotStart() async {
+    SoundOn.jackpot();
+
+    timerJackpot = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      setState(() {
+        blink = !blink;
+      });
+    });
+
+    await Future.delayed(const Duration(milliseconds: 2000), () {
+      blink = false;
+      _jackpotStop();
+    });
+  }
+
+  Future<void> _jackpotStop() async {
+    timerJackpot.cancel();
+    setState(() {});
+  }
+
   Future<void> _start() async {
     SoundOn.random();
     //counter = 0;
@@ -345,25 +383,8 @@ class _WheelState extends State<Wheel> {
         curve: Curves.linear,
       );
 
-      // _scrollController2.animateToItem(
-      //   counter2,
-      //   duration: Duration(milliseconds: 50),
-      //   curve: Curves.linear,
-      // );
-      // _scrollController3.animateToItem(
-      //   counter3,
-      //   duration: Duration(milliseconds: 50),
-      //   curve: Curves.linear,
-      // );
-
       counter--;
-      // counter2++;
-      // counter3 -= 3;
-
-      //log("$counter");
     });
-
-    // await Future.delayed(Duration(milliseconds: 500), () {});
 
     int randomResult2 = 30 + random.nextInt(55 - 30);
 
@@ -375,10 +396,7 @@ class _WheelState extends State<Wheel> {
       );
 
       counter2++;
-
-      //log("$counter");
     });
-    //   await Future.delayed(Duration(milliseconds: 500), () {});
 
     int randomResult3 = 30 + random.nextInt(55 - 30);
 
@@ -390,20 +408,7 @@ class _WheelState extends State<Wheel> {
       );
 
       counter3--;
-
-      //log("$counter");
     });
-
-    // _scrollController2.animateToItem(
-    //   counter2,
-    //   duration: Duration(milliseconds: 45),
-    //   curve: Curves.linear,
-    // );
-    // _scrollController3.animateToItem(
-    //   counter3,
-    //   duration: Duration(milliseconds: 50),
-    //   curve: Curves.linear,
-    // );
 
     log("$randomResult1 $randomResult2 $randomResult3");
     armTop = 170;
@@ -412,7 +417,7 @@ class _WheelState extends State<Wheel> {
     ballArmLeft = 287;
 
     setState(() {});
-    await Future.delayed(const Duration(milliseconds: 2100), () {
+    await Future.delayed(const Duration(milliseconds: 1500), () {
       stop();
     });
   }
@@ -422,16 +427,16 @@ class _WheelState extends State<Wheel> {
     timer2.cancel();
     timer3.cancel();
     // counter = 2; //หวยล็อก
-    // counter2 = 0;
-    // counter3 = 3;
+    // counter2 = 3;
+    // counter3 = 7;
     _scrollController1.animateToItem(
       counter,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350),
       curve: Curves.decelerate,
     );
     _scrollController2.animateToItem(
       counter2,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 450),
       curve: Curves.decelerate,
     );
     _scrollController3
@@ -441,12 +446,17 @@ class _WheelState extends State<Wheel> {
       curve: Curves.decelerate,
     )
         .then((value) async {
+      if ("$digit1$digit2$digit3" == "237") {
+        _jackpotStart();
+      }
+
       if (resultList.any((element) => element == "$digit1$digit2$digit3")) {
         _start();
       } else {
         //หยุดหมุน
         isSpin = false;
         if (isPrint) {
+          SoundOn.print();
           _paperHeight += 20;
           setState(() {});
           await Future.delayed(const Duration(milliseconds: 200), () {});
@@ -481,103 +491,119 @@ class _WheelState extends State<Wheel> {
   }
 
   final _screenshotController = ScreenshotController();
+  Color jackpotColor = Color.fromARGB(255, 255, 251, 0);
 
   @override
   Widget build(BuildContext context) {
     return Screenshot(
       controller: _screenshotController,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: _machineColor,
-          // backgroundColor: const Color(0xFF3E132C),
-          title: ads(context),
-          //backgroundColor: AppColor.colorPrimary[9]!,
-          actions: [
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.settings, size: 30),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-                //tooltip: "ปรับแต่งเครื่องสุ่มและพื้นหลังของคุณ",
+      child: isRefresh
+          ? Scaffold(
+              backgroundColor: AppColor.backgroundApp,
+              body: Center(
+                  child: SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.width / 2,
+                child: Image.asset(
+                  "assets/icon/iconApp_transparent.png",
+                  fit: BoxFit.contain,
+                ),
+              )))
+          : Scaffold(
+              appBar: AppBar(
+                backgroundColor: _machineColor,
+                // backgroundColor: const Color(0xFF3E132C),
+                title: ads(context),
+                //backgroundColor: AppColor.colorPrimary[9]!,
+                actions: [
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.settings, size: 30),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                      //tooltip: "ปรับแต่งเครื่องสุ่มและพื้นหลังของคุณ",
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        endDrawer: SoomSaamDrawer(
-          goodWord: (idx, goodword) async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString("goodWord", goodword);
-            log('${prefs.getString('goodWord')}');
+              endDrawer: SoomSaamDrawer(
+                goodWord: (idx, goodword) async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setString("goodWord", goodword);
+                  log('${prefs.getString('goodWord')}');
 
-            // final SharedPreferences prefs = await _prefs;
-            // await prefs.setString('goodword', goodword);
+                  // final SharedPreferences prefs = await _prefs;
+                  // await prefs.setString('goodword', goodword);
 
-            _goodWordIdx = idx;
-            _goodWord = goodword;
+                  _goodWordIdx = idx;
+                  _goodWord = goodword;
 
-            setState(() {});
-          },
-          gradient: (name, gradient, idx) async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString("nameGradientList", name);
-            await prefs.setInt("gradientIdx", idx);
-            log('${prefs.getString('nameGradientList')} ${prefs.getInt('gradientIdx')}');
-            _nightMode = gradient;
-            _nameGradientList = name;
-            _gradientIdx = idx;
-            setState(() {});
-          },
-          machineColor: (name, machineColor, idx) async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString("nameColorList", name);
-            await prefs.setInt("colorIdx", idx);
-            log('${prefs.getString('nameColorList')} ${prefs.getInt('colorIdx')}');
-            _machineColor = machineColor;
-            _nameColorList = name;
-            _colorIdx = idx;
+                  setState(() {});
+                },
+                gradient: (name, gradient, idx) async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setString("nameGradientList", name);
+                  await prefs.setInt("gradientIdx", idx);
+                  log('${prefs.getString('nameGradientList')} ${prefs.getInt('gradientIdx')}');
+                  _nightMode = gradient;
+                  _nameGradientList = name;
+                  _gradientIdx = idx;
+                  setState(() {});
+                },
+                machineColor: (name, machineColor, idx) async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setString("nameColorList", name);
+                  await prefs.setInt("colorIdx", idx);
+                  log('${prefs.getString('nameColorList')} ${prefs.getInt('colorIdx')}');
+                  _machineColor = machineColor;
+                  _nameColorList = name;
+                  _colorIdx = idx;
 
-            setState(() {});
-          },
-          goodWordSelected: _goodWord,
-          gradientSelected: _nightMode,
-          machineColorSelected: _machineColor,
-          nameMachineColorSelected: _nameColorList,
-          indexColorList: _colorIdx,
-          indexGadientList: _gradientIdx,
-          nameGradientSelected: _nameGradientList,
-        ),
-        body: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: _nightMode,
+                  setState(() {});
+                },
+                goodWordSelected: _goodWord,
+                gradientSelected: _nightMode,
+                machineColorSelected: _machineColor,
+                nameMachineColorSelected: _nameColorList,
+                indexColorList: _colorIdx,
+                indexGadientList: _gradientIdx,
+                nameGradientSelected: _nameGradientList,
               ),
+              body: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: _nightMode,
+                    ),
+                  ),
+                  child: Center(
+                      child: slotMachine(
+                          machineColor: _machineColor,
+                          borderColor: _borderColor,
+                          printButtonColor: _machineColor,
+                          randomButtonColor: _machineColor,
+                          soundButtonColor: _machineColor))),
+              // bottomSheet: Container(
+              //   width: MediaQuery.of(context).size.width,
+              //   height: 70,
+              //   alignment: Alignment.center,
+              //   color: AppColor.colorPrimary,
+              //   child: Text(
+              //     "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
+              //     textAlign: TextAlign.center,
+              //     style: TextStyle(
+              //         color: Colors.yellow,
+              //         fontFamily: 'Kanit-Regular',
+              //         fontSize: 20,
+              //         fontWeight: FontWeight.w500),
+              //   ),
+              // ),
             ),
-            child: Center(
-                child: slotMachine(
-                    machineColor: _machineColor,
-                    borderColor: _borderColor,
-                    printButtonColor: _machineColor,
-                    randomButtonColor: _machineColor,
-                    soundButtonColor: _machineColor))),
-        // bottomSheet: Container(
-        //   width: MediaQuery.of(context).size.width,
-        //   height: 70,
-        //   alignment: Alignment.center,
-        //   color: AppColor.colorPrimary,
-        //   child: Text(
-        //     "รับเลข 3 ตัว 3 สุ่ม ฟรี !!!\nกดไลค์ กดแชร์ กดติดตาม => พิมพ์ชื่อ",
-        //     textAlign: TextAlign.center,
-        //     style: TextStyle(
-        //         color: Colors.yellow,
-        //         fontFamily: 'Kanit-Regular',
-        //         fontSize: 20,
-        //         fontWeight: FontWeight.w500),
-        //   ),
-        // ),
-      ),
     );
   }
 
@@ -638,6 +664,20 @@ class _WheelState extends State<Wheel> {
         ),
       );
 
+  Widget jackpotIcon(
+          {required double top,
+          required double left,
+          IconData? icon,
+          Color? color,
+          double? size}) =>
+      Positioned(
+          top: top,
+          left: left,
+          child: blink
+              ? Icon(icon ?? Icons.star,
+                  size: size ?? 30, color: color ?? jackpotColor)
+              : const SizedBox());
+
   Widget slotMachine(
       {Color machineColor = const Color(0xFFBF0614),
       Color borderColor = const Color(0xFFFBCC45),
@@ -656,6 +696,13 @@ class _WheelState extends State<Wheel> {
       width: 323,
       height: 357,
       child: Stack(clipBehavior: Clip.none, children: [
+        for (int i = 0; i < 30; i++)
+          jackpotIcon(
+              color: AppColor
+                  .thaiTone[Math.Random().nextInt(AppColor.thaiTone.length - 1)]
+                  .color,
+              top: (-500 + Math.Random().nextInt(1000)).toDouble(),
+              left: (-50 + Math.Random().nextInt(500)).toDouble()),
         // Positioned(
         //     top: 7,
         //     left: 101,
@@ -669,6 +716,7 @@ class _WheelState extends State<Wheel> {
         //       ),
         //       alignment: Alignment.center,
         //     )),
+
         Positioned(
             top: 88,
             left: 76,
@@ -1110,7 +1158,67 @@ class _WheelState extends State<Wheel> {
               color: AppColor.colorGrey[2]!,
             ),
           ),
-        )
+        ),
+        // jackpotIcon(top: 47, left: -10),
+        // jackpotIcon(top: 115, left: -10),
+        // jackpotIcon(top: 183, left: -10),
+        // jackpotIcon(top: 251, left: -10),
+        // jackpotIcon(top: 47, left: 280),
+        // jackpotIcon(top: 115, left: 280),
+        // jackpotIcon(top: 183, left: 280),
+        // jackpotIcon(top: 251, left: 280),
+
+        // Positioned(
+        //     top: -47,
+        //     left: 0,
+        //     child: blink
+        //         ? Text(
+        //             'เลขนำโชค',
+        //             textAlign: TextAlign.center,
+        //             style: TextStyle(
+        //                 color: AppColor
+        //                     .thaiTone[Math.Random()
+        //                         .nextInt(AppColor.thaiTone.length - 1)]
+        //                     .color,
+        //                 fontSize: 80,
+        //                 fontWeight: FontWeight.bold,
+        //                 fontFamily: 'Kanit-Regular'),
+        //           )
+        //         : const SizedBox()),
+        // Positioned(
+        //     top: 110,
+        //     left: 90,
+        //     child: blink
+        //         ? Text(
+        //             '237',
+        //             textAlign: TextAlign.left,
+        //             style: TextStyle(
+        //                 color: AppColor
+        //                     .thaiTone[Math.Random()
+        //                         .nextInt(AppColor.thaiTone.length - 1)]
+        //                     .color,
+        //                 fontSize: 100,
+        //                 fontWeight: FontWeight.bold,
+        //                 fontFamily: 'Kanit-Regular'),
+        //           )
+        //         : const SizedBox()),
+        // Positioned(
+        //     top: 300,
+        //     left: 0,
+        //     child: blink
+        //         ? Text(
+        //             'JACKPOT',
+        //             textAlign: TextAlign.center,
+        //             style: TextStyle(
+        //                 color: AppColor
+        //                     .thaiTone[Math.Random()
+        //                         .nextInt(AppColor.thaiTone.length - 1)]
+        //                     .color,
+        //                 fontSize: 80,
+        //                 fontWeight: FontWeight.bold,
+        //                 fontFamily: 'Kanit-Regular'),
+        //           )
+        //         : const SizedBox()),
       ]),
     );
   }
@@ -1640,8 +1748,9 @@ class DialogApp {
             const SizedBox(
               height: 7,
             ),
-            Text(
+            AutoSizeText(
               title,
+              maxLines: 1,
               style: const TextStyle(
                   fontFamily: 'Kanit-Regular',
                   fontSize: 25,
@@ -1650,8 +1759,9 @@ class DialogApp {
             const SizedBox(
               height: 7,
             ),
-            Text(
+            AutoSizeText(
               middleText,
+              maxLines: 1,
               style: const TextStyle(
                   fontFamily: 'Kanit-Regular',
                   fontSize: 20,

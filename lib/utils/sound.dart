@@ -10,7 +10,7 @@ class SoundOn {
     if (soundOn) {
       final assetsAudioPlayer = AssetsAudioPlayer.withId("0");
       log("play random sound");
-      assetsAudioPlayer.open(Audio("assets/audio/random.wav"), autoStart: true);
+      assetsAudioPlayer.open(Audio("assets/audio/random.mp3"), autoStart: true);
     } else {
       log("off random sound");
     }
@@ -23,10 +23,36 @@ class SoundOn {
     if (soundOn) {
       final assetsAudioPlayer = AssetsAudioPlayer.withId("0");
       log("play print sound");
-      assetsAudioPlayer.open(Audio("assets/audio/printing.wav"),
-          autoStart: true);
+      assetsAudioPlayer.open(Audio("assets/audio/print.mp3"), autoStart: true);
     } else {
       log("off print sound");
+    }
+  }
+
+  static Future<void> cut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool soundOn = prefs.getBool('soundOn') ?? true;
+
+    if (soundOn) {
+      final assetsAudioPlayer = AssetsAudioPlayer.withId("0");
+      log("play cut sound");
+      assetsAudioPlayer.open(Audio("assets/audio/cut.mp3"), autoStart: true);
+    } else {
+      log("off cut sound");
+    }
+  }
+
+  static Future<void> jackpot() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool soundOn = prefs.getBool('soundOn') ?? true;
+
+    if (soundOn) {
+      final assetsAudioPlayer = AssetsAudioPlayer.withId("0");
+      log("play jackpot sound");
+      assetsAudioPlayer.open(Audio("assets/audio/jackpot.mp3"),
+          autoStart: true);
+    } else {
+      log("off jackpot sound");
     }
   }
 
