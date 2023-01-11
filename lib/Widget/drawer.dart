@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:randint/utils/color.dart';
+import 'package:randint/utils/font.dart';
 
 class SoomSaamDrawer extends StatefulWidget {
   const SoomSaamDrawer(
@@ -22,12 +26,10 @@ class SoomSaamDrawer extends StatefulWidget {
   final Color machineColorSelected;
   final String nameMachineColorSelected;
   final int indexColorList;
-
   final Function(String, List<Color>, int) gradient;
   final List<Color> gradientSelected;
   final String nameGradientSelected;
   final int indexGadientList;
-
   final Function(int, String) goodWord;
   final String goodWordSelected;
 
@@ -37,21 +39,35 @@ class SoomSaamDrawer extends StatefulWidget {
 
 class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
   TextStyle header = TextStyle(
-    fontFamily: 'Kanit-Regular',
+    fontFamily: FontFamilly.kanit,
     fontSize: 16,
     color: AppColor.colorText[1],
   );
 
+  TextStyle headerWhite = TextStyle(
+    fontFamily: FontFamilly.kanit,
+    fontSize: 16,
+    color: AppColor.colorText[5],
+  );
+
   TextStyle child = TextStyle(
-    fontFamily: 'Kanit-Regular',
+    fontFamily: FontFamilly.kanit,
     fontSize: 14,
     color: AppColor.paper[1],
   );
   TextStyle headerChild = TextStyle(
-    fontFamily: 'Kanit-Regular',
+    fontFamily: FontFamilly.kanit,
     fontSize: 13,
     color: AppColor.colorText[3],
   );
+
+  List<Color> bgGradientDefault = [
+    AppColor.colorGrey[1]!,
+    AppColor.colorGrey[1]!,
+    AppColor.colorWhite,
+    AppColor.colorGrey[1]!,
+    AppColor.colorGrey[1]!,
+  ];
 
   @override
   void initState() {
@@ -89,7 +105,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       trailing: Text(
                         widget.goodWordSelected,
                         style: TextStyle(
-                          fontFamily: 'Kanit-Regular',
+                          fontFamily: FontFamilly.kanit,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: widget.machineColorSelected,
@@ -176,7 +192,9 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                             gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: widget.gradientSelected)),
+                                colors: widget.indexGadientList == 0
+                                    ? bgGradientDefault
+                                    : widget.gradientSelected)),
                       ),
                       // tileColor: AppColor.colorPrimary[15]!,
                       title: Text(
@@ -199,6 +217,18 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                         //     showName: false),
                       ],
                     ),
+                    ListTile(
+                      onTap: () => SystemNavigator.pop(),
+                      tileColor: AppColor.colorText[6]!,
+                      title: Text(
+                        "ออกจากแอป",
+                        style: headerWhite,
+                      ),
+                      trailing: _iconDrawer(
+                          icon: Icons.exit_to_app_rounded,
+                          iconColor: widget.machineColorSelected,
+                          bgColor: AppColor.colorWhite),
+                    )
                   ],
                 ))
               ],
@@ -265,7 +295,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                                       child: AutoSizeText(
                                         colorList[i * perRow + j].name,
                                         style: TextStyle(
-                                          fontFamily: 'Kanit-Regular',
+                                          fontFamily: FontFamilly.kanit,
                                           fontSize: 14,
                                           color: AppColor.paper[1],
                                         ),
@@ -329,26 +359,27 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                               // padding: EdgeInsets.zero,
 
                               child: Container(
-                                width: 35,
-                                height: 35,
-                                margin: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: gardientList[i * perRow + j]
-                                          .gradient),
-                                ),
-                                child: name == widget.nameGradientSelected &&
+                                color: name == widget.nameGradientSelected &&
                                         widget.indexGadientList ==
                                             i * perRow + j
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: AppColor.colorWhite,
-                                        size: 20,
-                                      )
+                                    ? widget.machineColorSelected
+                                        .withOpacity(0.5)
                                     : null,
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  margin: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: i == 0 && j == 0
+                                            ? bgGradientDefault
+                                            : gardientList[i * perRow + j]
+                                                .gradient),
+                                  ),
+                                ),
                               ),
                             ),
                             showName
@@ -356,7 +387,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                                     child: AutoSizeText(
                                       gardientList[i * perRow + j].name,
                                       style: TextStyle(
-                                        fontFamily: 'Kanit-Regular',
+                                        fontFamily: FontFamilly.kanit,
                                         fontSize: 14,
                                         color: AppColor.paper[1],
                                       ),
@@ -430,13 +461,15 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
   //         ),
   //     ]);
 
-  Widget _iconDrawer({required IconData icon, Color? iconColor}) => Container(
+  Widget _iconDrawer(
+          {required IconData icon, Color? iconColor, Color? bgColor}) =>
+      Container(
         width: 35,
         height: 35,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColor.colorGrey[2]!,
+          color: bgColor ?? AppColor.colorGrey[2]!,
         ),
         child: Icon(
           icon,
@@ -470,7 +503,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
             title ?? "",
             maxLines: 1,
             style: TextStyle(
-                fontFamily: 'Kanit-Regular',
+                fontFamily: FontFamilly.kanit,
                 color: selected
                     ? AppColor.colorWhite
                     : color ?? AppColor.colorPrimary,

@@ -68,9 +68,9 @@ flutter_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/icon/iconApp.png"
+  image_path: "assets/icon/iconAppV2.png"
   adaptive_icon_background: "#001D26"
-  adaptive_icon_foreground: "assets/icon/iconApp_adaptive_fore.png"
+  adaptive_icon_foreground: "assets/icon/iconApp_adaptive_foreV2.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -103,12 +103,6 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Clarendon-Bold
-      fonts:
-        - asset: assets/fonts/Clarendon-Bold.ttf
-    - family: Casino
-      fonts:
-        - asset: assets/fonts/Casino.ttf
     - family: SOV_wayo
       fonts:
         - asset: assets/fonts/SOV_wayo.ttf

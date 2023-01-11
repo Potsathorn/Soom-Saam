@@ -36,7 +36,7 @@ class AppColor {
   });
 
   static const MaterialColor backgroundApp =
-      MaterialColor(0xFF001837, <int, Color>{});
+      MaterialColor(0xFF001D26, <int, Color>{});
 
   static const MaterialColor paper = MaterialColor(0xFFF9FDFD, <int, Color>{
     0: Color(0xFFF9FDFD),
@@ -113,14 +113,24 @@ class AppColor {
     tileMode: TileMode.mirror,
   );
 
+  // static List<NameColor> day = [
+  //   NameColor(color: const Color(0xFFB20F09), name: 'อาทิตย์'),
+  //   NameColor(color: const Color(0xFFE49C02), name: 'จันทร์'),
+  //   NameColor(color: const Color(0xFFF798A9), name: 'อังคาร'),
+  //   NameColor(color: const Color(0xFF03492C), name: 'พุธ'),
+  //   NameColor(color: const Color(0xFFDD6003), name: 'พฤหัสบดี'),
+  //   NameColor(color: const Color(0xFF023D94), name: 'ศุกร์'),
+  //   NameColor(color: const Color(0xFF4F2460), name: 'เสาร์'),
+  // ];
+
   static List<NameColor> day = [
-    NameColor(color: const Color(0xFFB20F09), name: 'อาทิตย์'),
-    NameColor(color: const Color(0xFFE49C02), name: 'จันทร์'),
-    NameColor(color: const Color(0xFFF798A9), name: 'อังคาร'),
-    NameColor(color: const Color(0xFF03492C), name: 'พุธ'),
-    NameColor(color: const Color(0xFFDD6003), name: 'พฤหัสบดี'),
-    NameColor(color: const Color(0xFF023D94), name: 'ศุกร์'),
-    NameColor(color: const Color(0xFF4F2460), name: 'เสาร์'),
+    NameColor(color: Colors.redAccent[700]!, name: 'อาทิตย์'),
+    NameColor(color: Colors.yellowAccent[700]!, name: 'จันทร์'),
+    NameColor(color: Colors.pinkAccent[700]!, name: 'อังคาร'),
+    NameColor(color: Colors.greenAccent[700]!, name: 'พุธ'),
+    NameColor(color: Colors.orangeAccent[700]!, name: 'พฤหัสบดี'),
+    NameColor(color: Colors.cyanAccent[700]!, name: 'ศุกร์'),
+    NameColor(color: Colors.purpleAccent[700]!, name: 'เสาร์'),
   ];
 
   static List<NameColor> thaiTone = [
@@ -150,62 +160,179 @@ class AppColor {
     NameColor(color: const Color(0xFFD1C8A1), name: 'ไพฑูรย์'),
   ];
 
+  // static List<NameGradient> gradientApp = [
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.red[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+
+  //   NameGradient(gradient: [
+  //     Colors.black,
+  //     Colors.pinkAccent[700]!,
+  //     Colors.white,
+  //     Colors.pinkAccent[700]!,
+  //     Colors.black,
+  //   ], name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.purple[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.deepPurple[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.indigo[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.blue[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.lightBlue[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.cyan[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.teal[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.green[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.lightGreen[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.lime[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.yellow[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.amber[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.orange[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  //   NameGradient(
+  //       gradient: [Colors.black, Colors.deepOrange[900]!, Colors.black],
+  //       name: 'Premium Dark'),
+  // ];
+
   static List<NameGradient> gradientApp = [
-    NameGradient(
-        gradient: [const Color(0xFFE9E4F0), const Color(0xFFD3CCE3)],
-        name: 'Sexy Blue'),
-    NameGradient(
-        gradient: [const Color(0xFF41295a), const Color(0xFF2F0743)],
-        name: 'Purple Love'),
-    NameGradient(
-        gradient: [const Color(0xFFDA22FF), const Color(0xFF9733EE)],
-        name: 'Piglet'),
     NameGradient(gradient: [
-      const Color(0xFF0F2027),
-      const Color(0xFF203A43),
-      const Color(0xFF2C5364)
-    ], name: 'Mauve'),
-    NameGradient(
-        gradient: [const Color(0xFF000046), const Color(0xFF1CB5E0)],
-        name: '50 Shades of Grey'),
-    NameGradient(
-        gradient: [const Color(0xFF000428), const Color(0xFF004e92)],
-        name: 'Frost'),
-    NameGradient(
-        gradient: [const Color(0xFF00bf8f), const Color(0xFF001510)],
-        name: 'Endless River'),
-    NameGradient(
-        gradient: [const Color(0xFF000000), const Color(0xFF0f9b0f)],
-        name: 'Bloody Mary'),
-    NameGradient(
-        gradient: [const Color(0xFF11998e), const Color(0xFF38ef7d)],
-        name: 'Decent'),
+      const Color(0xFFFAFAFA),
+      const Color(0xFFFAFAFA),
+    ], name: 'Premium Dark'),
     NameGradient(gradient: [
-      const Color(0xFF00416A),
-      const Color(0xFF799F0C),
-      const Color(0xFFFFE000)
-    ], name: 'Aubergine'),
-    NameGradient(
-        gradient: [const Color(0xFFc21500), const Color(0xFFffc500)],
-        name: 'Scooter'),
-    NameGradient(
-        gradient: [const Color(0xFFe65c00), const Color(0xFFF9D423)],
-        name: 'Celestial'),
-    NameGradient(
-        gradient: [const Color(0xFFFF0099), const Color(0xFF000000)],
-        name: 'Royal'),
+      Colors.black,
+      Colors.redAccent[700]!,
+      Colors.white,
+      Colors.redAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
     NameGradient(gradient: [
-      const Color(0xFFfdeff9),
-      const Color(0xFFec38bc),
-      const Color(0xFF7303c0),
-      const Color(0xFF03001e),
-    ], name: 'Peach'),
-    NameGradient(
-        gradient: [const Color(0xFFdd1818), const Color(0xFF000000)],
-        name: 'Heavy Rain'),
-    NameGradient(
-        gradient: [const Color(0xFF8E0E00), const Color(0xFF000000)],
-        name: 'Premium Dark'),
+      Colors.black,
+      Colors.pinkAccent[700]!,
+      Colors.white,
+      Colors.pinkAccent[700]!,
+      Colors.black,
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.purpleAccent[700]!,
+      Colors.white,
+      Colors.purpleAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.deepPurpleAccent[700]!,
+      Colors.white,
+      Colors.deepPurpleAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.indigoAccent[700]!,
+      Colors.white,
+      Colors.indigoAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.blueAccent[700]!,
+      Colors.white,
+      Colors.blueAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.lightBlueAccent[700]!,
+      Colors.white,
+      Colors.lightBlueAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.cyanAccent[700]!,
+      Colors.white,
+      Colors.cyanAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.tealAccent[700]!,
+      Colors.white,
+      Colors.tealAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.greenAccent[700]!,
+      Colors.white,
+      Colors.greenAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.lightGreenAccent[700]!,
+      Colors.white,
+      Colors.lightGreenAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.limeAccent[700]!,
+      Colors.white,
+      Colors.limeAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.yellowAccent[700]!,
+      Colors.white,
+      Colors.yellowAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.amberAccent[700]!,
+      Colors.white,
+      Colors.amberAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.orangeAccent[700]!,
+      Colors.white,
+      Colors.orangeAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
+    NameGradient(gradient: [
+      Colors.black,
+      Colors.deepOrangeAccent[700]!,
+      Colors.white,
+      Colors.deepOrangeAccent[700]!,
+      Colors.black
+    ], name: 'Premium Dark'),
   ];
 
   static const List<String> goodWord = [

@@ -13,6 +13,7 @@
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -44,6 +45,11 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-8512739792984462~7945477627"/>
+
+        <meta-data
+            android:name="com.google.android.gms.permission.AD_ID"
+            android:value=""/>
+
     </application>
 </manifest>
