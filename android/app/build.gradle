@@ -58,8 +58,8 @@ def keystoreProperties = new Properties()
         // targetSdkVersion flutter.targetSdkVersion
         minSdkVersion 20
         targetSdkVersion 31
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '1.0.0'
     }
 
     signingConfigs {
