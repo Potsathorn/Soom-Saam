@@ -11,6 +11,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:randint/utils/font.dart';
+import 'package:randint/utils/language.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/admob_service.dart';
@@ -95,11 +96,14 @@ class _FirstPageState extends State<FirstPage> {
   Color machineColor = AppColor.colorPrimary[1]!;
   Color borderColor = AppColor.colorPrimary[1]!;
   bool soundOn = true;
+  String lang = "English";
 
   int round = 0;
   List<int> d1 = [0, 2, 4, 0, 5, 1, 0, 2, 4, 0, 5, 1];
   List<int> d2 = [5, 5, 2, 0, 2, 9, 0, 2, 4, 0, 5, 1];
   List<int> d3 = [8, 0, 5, 7, 2, 6, 0, 2, 4, 0, 5, 1];
+
+  late InAppWord _inAppWord;
 
   @override
   void initState() {
@@ -134,7 +138,8 @@ class _FirstPageState extends State<FirstPage> {
       isRefresh = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    goodWord = prefs.getString('goodWord') ?? 'สบายใจ';
+    lang = prefs.getString('lang') ?? 'English';
+    goodWord = prefs.getString('goodWord') ?? 'Happy';
     nameColorList = prefs.getString('nameColorList') ?? 'day';
     colorIdx = prefs.getInt('colorIdx') ?? 0;
     nameGradientList = prefs.getString('nameGradientList') ?? 'gradient';
@@ -154,6 +159,7 @@ class _FirstPageState extends State<FirstPage> {
     }
 
     log('${prefs.getString('goodWord')}');
+    _inAppWord = Languages.inAppWord(lang);
     setState(() {
       isRefresh = false;
     });
@@ -242,7 +248,12 @@ class _FirstPageState extends State<FirstPage> {
     await Future.delayed(const Duration(milliseconds: 200), () {});
     final DateTime now = DateTime.now();
     final todayBuddhism = DateTime(now.year + 543, now.month, now.day);
-    dateNow = DateFormat('dd/MM/yy').format(todayBuddhism);
+    if (lang == "English") {
+      dateNow = DateFormat('MM/dd/yyyy').format(now);
+    } else {
+      dateNow = DateFormat('dd/MM/yy').format(todayBuddhism);
+    }
+
     //dateNow = "30/12/65"; //ล็อควันที่
     stampDate = true;
     setState(() {});
@@ -261,7 +272,11 @@ class _FirstPageState extends State<FirstPage> {
         childe:
             //resultDialog
             DialogApp(context).saveCapture(
-                //title: name,
+                isEng: lang == "English",
+                title: lang == "English" ? "Result" : "ผลการสุ่ม",
+                middleText: lang == "English"
+                    ? "Do you want to save the result?"
+                    : "บันทึกภาพผลการสุ่ม",
                 onTapCancel: () {
                   Navigator.pop(context);
                   _init();
@@ -468,8 +483,8 @@ class _FirstPageState extends State<FirstPage> {
         // height: 70,
         alignment: Alignment.centerLeft,
         color: machineColor,
-        child: const Text(
-          "สุ่มสาม",
+        child: Text(
+          _inAppWord.appName!,
           textAlign: TextAlign.center,
           style: TextStyle(
               color: Colors.white,
@@ -486,6 +501,9 @@ class _FirstPageState extends State<FirstPage> {
           log('${prefs.getString('goodWord')}');
           goodWordIdx = idx;
           goodWord = goodword;
+          // goodWord = lang == "English"
+          //     ? AppColor.goodWordEng[idx]
+          //     : AppColor.goodWord[idx];
           setState(() {});
         },
         gradient: (name, gradient, idx) async {
@@ -516,6 +534,19 @@ class _FirstPageState extends State<FirstPage> {
         indexColorList: colorIdx,
         indexGadientList: gradientIdx,
         nameGradientSelected: nameGradientList,
+        inAppWord: _inAppWord,
+        languageSelected: (langSelected) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString("lang", langSelected);
+          lang = langSelected;
+          _inAppWord = Languages.inAppWord(lang);
+          goodWord = lang == "English" ? "Happy" : "พูนสุข";
+          await prefs.setString("goodWord", goodWord);
+
+          setState(() {});
+        },
+        goodWordList:
+            lang == "English" ? AppColor.goodWordEng : AppColor.goodWord,
       );
 
   Widget _body() => Container(
@@ -949,8 +980,8 @@ class _FirstPageState extends State<FirstPage> {
               color: randomButtonColor,
               shadowColor: AppColor.colorBlack.withOpacity(0.5),
               //shadowColor: AppColor.colorStatusTag,
-              child: const Text(
-                "สุ่ม",
+              child: Text(
+                _inAppWord.randomButton!,
                 style: TextStyle(
                     fontFamily: FontFamilly.kanit,
                     fontSize: 16,

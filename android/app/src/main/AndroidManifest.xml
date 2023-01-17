@@ -7,7 +7,7 @@
         android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:label="สุ่มสาม"
+        android:label="SoomSaam"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">

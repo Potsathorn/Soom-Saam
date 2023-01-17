@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'package:randint/utils/color.dart';
 import 'package:randint/utils/font.dart';
+import 'package:randint/utils/language.dart';
 
 class SoomSaamDrawer extends StatefulWidget {
   const SoomSaamDrawer(
@@ -20,7 +21,10 @@ class SoomSaamDrawer extends StatefulWidget {
       required this.nameMachineColorSelected,
       required this.indexColorList,
       required this.nameGradientSelected,
-      required this.indexGadientList});
+      required this.indexGadientList,
+      required this.inAppWord,
+      required this.languageSelected,
+      required this.goodWordList});
 
   final Function(String, Color, int) machineColor;
   final Color machineColorSelected;
@@ -32,6 +36,9 @@ class SoomSaamDrawer extends StatefulWidget {
   final int indexGadientList;
   final Function(int, String) goodWord;
   final String goodWordSelected;
+  final InAppWord inAppWord;
+  final Function(String) languageSelected;
+  final List<String> goodWordList;
 
   @override
   State<SoomSaamDrawer> createState() => _SoomSaamDrawerState();
@@ -73,6 +80,9 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    // widget.inAppWord.language == "English"
+    //     ? goodWordList = AppColor.goodWordEng
+    //     : AppColor.goodWord;
   }
 
   @override
@@ -101,6 +111,57 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                   children: [
                     ExpansionTile(
                       //initiallyExpanded: true,
+                      leading: _iconDrawer(icon: Icons.language),
+                      trailing: Text(
+                        widget.inAppWord.language!,
+                        style: TextStyle(
+                          fontFamily: FontFamilly.kanit,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: widget.machineColorSelected,
+                        ),
+                      ),
+                      // tileColor: AppColor.colorPrimary[15]!,
+                      title: Text(
+                        widget.inAppWord.dLanguage!,
+                        style: header,
+                      ),
+                      childrenPadding: const EdgeInsets.only(left: 50),
+                      children: [
+                        ListTile(
+                            onTap: (() {
+                              widget.languageSelected("English");
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            }),
+                            trailing: widget.inAppWord.language == "English"
+                                ? Icon(Icons.check_circle_outline_rounded,
+                                    color: widget.machineColorSelected,
+                                    size: 25)
+                                : null,
+                            title: Text(
+                              "English",
+                              style: header,
+                            )),
+                        ListTile(
+                            onTap: (() {
+                              widget.languageSelected("ภาษาไทย");
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            }),
+                            trailing: widget.inAppWord.language == "ภาษาไทย"
+                                ? Icon(Icons.check_circle_outline_rounded,
+                                    color: widget.machineColorSelected,
+                                    size: 25)
+                                : null,
+                            title: Text(
+                              "ภาษาไทย",
+                              style: header,
+                            ))
+                      ],
+                    ),
+                    ExpansionTile(
+                      //initiallyExpanded: true,
                       leading: _iconDrawer(icon: Icons.star),
                       trailing: Text(
                         widget.goodWordSelected,
@@ -113,27 +174,27 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       ),
                       // tileColor: AppColor.colorPrimary[15]!,
                       title: Text(
-                        "คำมงคล",
+                        widget.inAppWord.dGoodWord!,
                         style: header,
                       ),
                       childrenPadding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                       children: [
                         for (int i = 0;
-                            i < (AppColor.goodWord.length / 4).ceil();
+                            i < (widget.goodWordList.length / 3).ceil();
                             i++)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              for (int j = 0; j < 4; j++)
+                              for (int j = 0; j < 3; j++)
                                 _buttonGoodWord(
-                                  title: AppColor.goodWord[i * 4 + j],
+                                  title: widget.goodWordList[i * 3 + j],
                                   color: widget.machineColorSelected,
-                                  selected: AppColor.goodWord
+                                  selected: widget.goodWordList
                                           .indexOf(widget.goodWordSelected) ==
-                                      i * 4 + j,
+                                      i * 3 + j,
                                   onTap: () {
-                                    widget.goodWord(i * 4 + j,
-                                        AppColor.goodWord[i * 4 + j]);
+                                    widget.goodWord(i * 3 + j,
+                                        widget.goodWordList[i * 3 + j]);
                                     Navigator.of(context).pop();
                                     setState(() {});
                                   },
@@ -154,7 +215,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       ),
                       // tileColor: AppColor.colorPrimary[15]!,
                       title: Text(
-                        "สีเครื่องสุ่ม",
+                        widget.inAppWord.dColor!,
                         style: header,
                       ),
                       // subtitle: Text(
@@ -165,20 +226,26 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       children: [
                         _colorList(
                           name: "day",
-                          title: "วันทั้งเจ็ด",
-                          colorList: AppColor.day,
+                          title: widget.inAppWord.day,
+                          colorList: widget.inAppWord.language == "English"
+                              ? AppColor.dayEng
+                              : AppColor.day,
                           perRow: 2,
                           //isSelected: widget.nameMachineColorSelected == "day"
                         ),
                         _colorList(
                             name: "noppaKao",
-                            title: "นพรัตน์",
-                            colorList: AppColor.noppaKao,
+                            title: widget.inAppWord.noppaKao,
+                            colorList: widget.inAppWord.language == "English"
+                                ? AppColor.noppaKaoEng
+                                : AppColor.noppaKao,
                             perRow: 2),
                         _colorList(
                             name: 'thaiTone',
-                            title: "แบบไทย",
-                            colorList: AppColor.thaiTone,
+                            title: widget.inAppWord.thaiTone,
+                            colorList: widget.inAppWord.language == "English"
+                                ? AppColor.thaiToneEng
+                                : AppColor.thaiTone,
                             perRow: 2),
                       ],
                     ),
@@ -198,7 +265,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       ),
                       // tileColor: AppColor.colorPrimary[15]!,
                       title: Text(
-                        "พื้นหลัง",
+                        widget.inAppWord.dBackground!,
                         style: header,
                       ),
                       childrenPadding:
@@ -221,7 +288,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
                       onTap: () => SystemNavigator.pop(),
                       tileColor: AppColor.colorText[6]!,
                       title: Text(
-                        "ออกจากแอป",
+                        widget.inAppWord.dExit!,
                         style: headerWhite,
                       ),
                       trailing: _iconDrawer(
@@ -487,7 +554,7 @@ class _SoomSaamDrawerState extends State<SoomSaamDrawer> {
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-          width: 60,
+          width: 80,
           height: 25,
           alignment: Alignment.center,
           decoration: BoxDecoration(

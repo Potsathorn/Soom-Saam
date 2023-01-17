@@ -36,6 +36,7 @@ class DialogApp {
 
   Widget saveCapture(
       {required Widget child,
+      bool isEng = false,
       String title = "ผลการสุ่ม",
       String middleText = "บันทึกผลการสุ่มหรือไม่",
       double dialogWidth = 324,
@@ -89,12 +90,12 @@ class DialogApp {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 button(
-                    title: "ยกเลิก",
+                    title: isEng ? "Cancel" : "ยกเลิก",
                     isOutline: true,
                     onTap: onTapCancel,
                     color: color),
                 button(
-                    title: "ยืนยัน",
+                    title: isEng ? "Save" : "ยืนยัน",
                     isOutline: false,
                     color: color,
                     onTap: onTapConfirm)

@@ -133,6 +133,16 @@ class AppColor {
     NameColor(color: Colors.purpleAccent[700]!, name: 'เสาร์'),
   ];
 
+  static List<NameColor> dayEng = [
+    NameColor(color: Colors.redAccent[700]!, name: 'Sunday'),
+    NameColor(color: Colors.yellowAccent[700]!, name: 'Monday'),
+    NameColor(color: Colors.pinkAccent[700]!, name: 'Tuesday'),
+    NameColor(color: Colors.greenAccent[700]!, name: 'Wednesday'),
+    NameColor(color: Colors.orangeAccent[700]!, name: 'Thursday'),
+    NameColor(color: Colors.cyanAccent[700]!, name: 'Friday'),
+    NameColor(color: Colors.purpleAccent[700]!, name: 'Saturday'),
+  ];
+
   static List<NameColor> thaiTone = [
     NameColor(color: const Color(0xFF1C3F67), name: 'คราม'),
     NameColor(color: const Color(0xFF00626B), name: 'เขียวขาม'),
@@ -148,6 +158,21 @@ class AppColor {
     NameColor(color: const Color(0xFF6A4797), name: 'ดอกอัญชัน'),
   ];
 
+  static List<NameColor> thaiToneEng = [
+    NameColor(color: const Color(0xFF1C3F67), name: 'Khram'),
+    NameColor(color: const Color(0xFF00626B), name: 'Kheiywkham'),
+    NameColor(color: const Color(0xFF007838), name: 'Kheiywtong'),
+    NameColor(color: const Color(0xFFC2B506), name: 'Kheiywmapud'),
+    NameColor(color: const Color(0xFFF4BD00), name: 'Rongthong'),
+    NameColor(color: const Color(0xFFF6A400), name: 'Champa'),
+    NameColor(color: const Color(0xFFF08525), name: 'Meksontaya'),
+    NameColor(color: const Color(0xFFE94D10), name: 'Sen'),
+    NameColor(color: const Color(0xFFC3191C), name: 'Daengchad'),
+    NameColor(color: const Color(0xFFA42140), name: 'Lychees'),
+    NameColor(color: const Color(0xFF702874), name: 'Medmaprang'),
+    NameColor(color: const Color(0xFF6A4797), name: 'Dokunchan'),
+  ];
+
   static List<NameColor> noppaKao = [
     NameColor(color: const Color(0xFFCED7D0), name: 'เพชร'),
     NameColor(color: const Color(0xFFB12C2D), name: 'ทับทิม'),
@@ -158,6 +183,18 @@ class AppColor {
     NameColor(color: const Color(0xFFCAAC76), name: 'มุกดาหาร'),
     NameColor(color: const Color(0xFFD28897), name: 'เพทาย'),
     NameColor(color: const Color(0xFFD1C8A1), name: 'ไพฑูรย์'),
+  ];
+
+  static List<NameColor> noppaKaoEng = [
+    NameColor(color: const Color(0xFFCED7D0), name: 'Diamond'),
+    NameColor(color: const Color(0xFFB12C2D), name: 'Ruby'),
+    NameColor(color: const Color(0xFF017D41), name: 'Emerald'),
+    NameColor(color: const Color(0xFFF1B600), name: 'Topaz'),
+    NameColor(color: const Color(0xFF9A1B38), name: 'Garnet'),
+    NameColor(color: const Color(0xFF173966), name: 'Black Spinel'),
+    NameColor(color: const Color(0xFFCAAC76), name: 'Moonstone'),
+    NameColor(color: const Color(0xFFD28897), name: 'Zircon'),
+    NameColor(color: const Color(0xFFD1C8A1), name: "Chrysoberyl"),
   ];
 
   // static List<NameGradient> gradientApp = [
@@ -349,13 +386,35 @@ class AppColor {
     'พูนสุข',
     'โชคลาภ',
     'ก้าวหน้า',
-    'รุ่งเรื่อง',
+    'รุ่งเรือง',
     'สำเร็จ',
-    'บริสุทธ์',
+    'บริสุทธิ์',
     'ราบรื่น',
     'ล้ำค่า',
-    'สูงส่ง',
-    'สมหวัง',
+    // 'สูงส่ง',
+    // 'สมหวัง',
+  ];
+  static const List<String> goodWordEng = [
+    'Healthy',
+    'Relaxed',
+    'Good luck',
+    'Lucrative',
+    'Strong',
+    'Wealthy',
+    'Pleasant',
+    'Sober',
+    'Peaceful',
+    'Complete',
+    'Happy',
+    'Fortune',
+    'Progress',
+    'Prosperous',
+    'Succeed',
+    'Pure',
+    'Smooth',
+    'Precious',
+    // 'lofty',
+    // 'fulfil',
   ];
 }
 
